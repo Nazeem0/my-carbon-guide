@@ -11,9 +11,9 @@ describe("emissionFactors", () => {
 
   it("should map activities correctly to array", () => {
     expect(activities.length).toBeGreaterThan(0);
-    
+
     // Test a specific activity to ensure correct mapping and factor conversion
-    const carPetrol = activities.find(a => a.id === "car_petrol");
+    const carPetrol = activities.find((a) => a.id === "car_petrol");
     expect(carPetrol).toBeDefined();
     expect(carPetrol?.category).toBe("Transport");
     expect(carPetrol?.emoji).toBe("🚗");
@@ -22,10 +22,10 @@ describe("emissionFactors", () => {
   });
 
   it("should have zero impact activities", () => {
-    const walk = activities.find(a => a.id === "walk");
+    const walk = activities.find((a) => a.id === "walk");
     expect(walk?.factor).toBe(0);
-    
-    const bikeRide = activities.find(a => a.id === "bike_ride");
+
+    const bikeRide = activities.find((a) => a.id === "bike_ride");
     expect(bikeRide?.factor).toBe(0);
   });
 });

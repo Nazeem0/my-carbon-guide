@@ -267,6 +267,7 @@ export default function ProfilePage() {
               <h2 className="text-base font-bold">{t("settings.language")}</h2>
               <button
                 onClick={() => setLangOpen(false)}
+                aria-label="Close"
                 className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-muted-foreground hover:text-foreground transition-colors"
               >
                 <X size={15} />
@@ -310,6 +311,7 @@ export default function ProfilePage() {
               <h2 className="text-base font-bold">{t("settings.editProfile")}</h2>
               <button
                 onClick={() => setEditOpen(false)}
+                aria-label="Close"
                 className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-muted-foreground hover:text-foreground transition-colors"
               >
                 <X size={15} />

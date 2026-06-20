@@ -157,6 +157,7 @@ export default function DetailedInsight() {
       <div className="flex items-center gap-3 pt-2 pb-4">
         <button
           onClick={() => navigate(-1)}
+          aria-label="Go back"
           className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft size={18} />
@@ -264,6 +265,7 @@ export default function DetailedInsight() {
               />
               <button
                 type="submit"
+                aria-label="Send message"
                 disabled={!chatInput.trim() || chatLoading}
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground disabled:opacity-50 transition-opacity"
               >

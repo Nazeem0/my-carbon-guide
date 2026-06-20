@@ -19,8 +19,8 @@ export function LeaderboardRow({
   const medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : null;
   return (
     <div
-      className={`flex items-center gap-3 rounded-2xl border p-3 ${
-        me ? "border-primary bg-primary/10" : "border-border bg-card"
+      className={`flex items-center gap-3 rounded-2xl border p-3 backdrop-blur-xl ${
+        me ? "border-primary bg-primary/20" : "border-white/20 bg-white/20 dark:bg-white/10"
       }`}
     >
       <div className="grid w-8 place-items-center text-sm font-bold text-muted-foreground">

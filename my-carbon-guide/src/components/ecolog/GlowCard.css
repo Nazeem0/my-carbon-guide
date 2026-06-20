@@ -1,0 +1,78 @@
+.gc-card {
+  position: relative;
+  overflow: hidden;
+  --gc-glow-x: 50%;
+  --gc-glow-y: 50%;
+  --gc-glow-intensity: 0;
+  --gc-glow-radius: 400px;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+/* Border glow mask effect */
+.gc-card--border-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  background: radial-gradient(
+    var(--gc-glow-radius) circle at var(--gc-glow-x) var(--gc-glow-y),
+    rgba(16, 185, 129, calc(var(--gc-glow-intensity) * 1)) 0%,
+    rgba(16, 185, 129, calc(var(--gc-glow-intensity) * 0.7)) 25%,
+    rgba(16, 185, 129, calc(var(--gc-glow-intensity) * 0.3)) 50%,
+    transparent 70%
+  );
+  border-radius: inherit;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+/* Inner spotlight fill */
+.gc-card--border-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    var(--gc-glow-radius) circle at var(--gc-glow-x) var(--gc-glow-y),
+    rgba(16, 185, 129, calc(var(--gc-glow-intensity) * 0.2)) 0%,
+    rgba(16, 185, 129, calc(var(--gc-glow-intensity) * 0.1)) 35%,
+    transparent 60%
+  );
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 1;
+  z-index: 0;
+}
+
+.gc-card--border-glow:hover::after,
+.gc-card--border-glow:hover::before {
+  opacity: 1;
+}
+
+.gc-card--border-glow:hover {
+  box-shadow:
+    0 4px 24px rgba(16, 185, 129, 0.35),
+    0 0 50px rgba(16, 185, 129, 0.2),
+    inset 0 0 40px rgba(16, 185, 129, 0.08);
+}
+
+.gc-particle::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  background: rgba(16, 185, 129, 0.5);
+  border-radius: 50%;
+  z-index: -1;
+}

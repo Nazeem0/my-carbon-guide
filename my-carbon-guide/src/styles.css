@@ -147,8 +147,22 @@
   }
 
   body {
-    background-color: var(--color-background);
     color: var(--color-foreground);
+  }
+}
+
+html, body {
+  background-color: #FFFFFF !important;
+  margin: 0;
+  padding: 0;
+}
+
+@layer base {
+  * {
+    scrollbar-width: none;
+  }
+  *::-webkit-scrollbar {
+    display: none;
   }
 }
 
@@ -156,8 +170,10 @@
   .input-field {
     width: 100%;
     border-radius: 0.75rem;
-    border: 1px solid var(--border);
-    background: var(--background);
+    border: 1px solid oklch(1 0 0 / 0.2);
+    background: oklch(1 0 0 / 0.15);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     padding: 0.625rem 1rem;
     font-size: 0.875rem;
     font-weight: 500;
@@ -170,4 +186,116 @@
   .input-field::placeholder {
     color: var(--muted-foreground);
   }
+
+  .glass {
+    background: oklch(1 0 0 / 0.25);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid oklch(1 0 0 / 0.2);
+    box-shadow: 0 8px 32px oklch(0 0 0 / 0.08);
+  }
+
+  .dark .glass {
+    background: oklch(0 0 0 / 0.2);
+    border: 1px solid oklch(1 1 1 / 0.1);
+  }
+
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ── App container (dark glass background inside white letterbox) ── */
+.app-container {
+  background-color: #0A1F17;
+  color: #FFFFFF;
+  max-width: 430px;
+  width: 100%;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Glass card base ── */
+.glass-card {
+  background: rgba(16, 60, 45, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(167, 243, 208, 0.15);
+  border-radius: 16px;
+  color: #FFFFFF;
+}
+
+/* ── Welcome heading display font ── */
+.welcome-heading {
+  font-family: 'Sora', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* ── Leaf sphere graphic (onboarding) ── */
+.leaf-sphere-graphic {
+  position: absolute;
+  top: 52%;
+  left: 45%;
+  transform: translate(-50%, -50%);
+  width: 110%;
+  max-width: 900px;
+  height: auto;
+  object-fit: contain;
+  z-index: 0;
+  pointer-events: none;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+/* ── Glass card light mode ── */
+.glass-card-light {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  color: #064E3B;
+}
+
+/* ── Gauge glow ── */
+@property --gauge-mask-pct {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
+.gauge-glow {
+  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--glow-color, #10b981) 40%, transparent))
+          drop-shadow(0 0 24px color-mix(in srgb, var(--glow-color, #10b981) 20%, transparent));
+}
+
+.gauge-gradient-ring {
+  mask:
+    conic-gradient(
+      from calc(var(--gauge-from, 15) * 1deg),
+      black 0%,
+      black calc(var(--gauge-mask-pct, 0) * 1%),
+      transparent calc(var(--gauge-mask-pct, 0) * 1%),
+      transparent 100%
+    ),
+    radial-gradient(circle at center, transparent 75px, black 75px, black 91px, transparent 91px);
+  mask-composite: intersect;
+  -webkit-mask-composite: source-in;
+}
+
+/* ── Gauge pulse when ≥100% ── */
+.gauge-pulse {
+  animation: gaugePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes gaugePulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.08); opacity: 1; }
 }

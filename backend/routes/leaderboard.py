@@ -13,12 +13,13 @@ from fastapi import APIRouter, Depends
 
 from firebase_init import db
 from auth import verify_token
+from utils import LEADERBOARD_LIMIT
 
 router = APIRouter()
 
 
 def _fetch_leaderboard(uid: str) -> list:
-    snap = db.collection("users").stream()
+    snap = db.collection("users").order_by("todayKg").limit(LEADERBOARD_LIMIT + 50).stream()
 
     users = []
     for doc in snap:
@@ -33,12 +34,10 @@ def _fetch_leaderboard(uid: str) -> list:
             "isCurrentUser": doc.id == uid,
         })
 
-    users.sort(key=lambda u: u["todayKg"])
-
     for i, u in enumerate(users):
         u["rank"] = i + 1
 
-    return users[:50]
+    return users[:LEADERBOARD_LIMIT]
 
 
 @router.get("/leaderboard")

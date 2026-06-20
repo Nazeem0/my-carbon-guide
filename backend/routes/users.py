@@ -10,7 +10,7 @@ import asyncio
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from firebase_init import db
 from auth import verify_token
@@ -20,15 +20,15 @@ router = APIRouter()
 
 
 class ProfileUpdate(BaseModel):
-    name: str | None = None
-    city: str | None = None
-    college: str | None = None
-    age: int | None = None
-    gender: str | None = None
-    bio: str | None = None
-    phone: str | None = None
-    yearOfStudy: str | None = None
-    dailyGoalKg: float | None = None
+    name: str | None = Field(None, min_length=1, max_length=100)
+    city: str | None = Field(None, min_length=1, max_length=100)
+    college: str | None = Field(None, max_length=200)
+    age: int | None = Field(None, ge=10, le=120)
+    gender: str | None = Field(None, pattern=r"^(Male|Female|Other|Non-binary|Prefer not to say)?$")
+    bio: str | None = Field(None, max_length=500)
+    phone: str | None = Field(None, pattern=r"^[0-9+\-\s()]*$", max_length=20)
+    yearOfStudy: str | None = Field(None, max_length=50)
+    dailyGoalKg: float | None = Field(None, gt=0, le=100)
 
 
 def _get_profile_sync(uid: str, token: dict) -> dict:

@@ -23,23 +23,14 @@ from firebase_admin import auth as fb_auth
 
 from firebase_init import db
 from ws_manager import manager
+from utils import serialize_activity, WS_PING_INTERVAL
 
 router = APIRouter()
 
 
 def _fetch_sync_state(uid: str) -> dict:
     acts_snap = db.collection("activities").where("userId", "==", uid).stream()
-    activities = []
-    for doc in acts_snap:
-        data = doc.to_dict()
-        ts = data.get("timestamp")
-        activities.append({
-            "id": doc.id,
-            "activityKey": data.get("activityKey", ""),
-            "quantity": data.get("quantity", 0),
-            "co2_kg": data.get("co2_kg", 0.0),
-            "timestamp": ts.isoformat() if ts and hasattr(ts, "isoformat") else str(ts),
-        })
+    activities = [serialize_activity(doc) for doc in acts_snap]
     activities.sort(key=lambda a: a["timestamp"], reverse=True)
 
     profile_doc = db.collection("users").document(uid).get()
@@ -64,7 +55,7 @@ async def websocket_sync(ws: WebSocket, token: str = Query(...)):
         await ws.send_json(state)
 
         while True:
-            await asyncio.sleep(30)
+            await asyncio.sleep(WS_PING_INTERVAL)
             await ws.send_json({"type": "PING"})
 
     except WebSocketDisconnect:

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { AppShell } from "@/components/ecolog/AppShell";
+import { GlowCard } from "@/components/ecolog/GlowCard";
 import { WeeklySummary } from "@/components/ui/WeeklySummary";
-import { generateWeeklySummary, type RoadmapAction } from "@/services/gemini";
 import {
   LineChart, Line, XAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
@@ -11,6 +11,20 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EMISSION_FACTORS } from "@/data/emissionFactors";
+import { CITY_AVERAGES } from "@/hooks/useCarbon";
+import { API_BASE } from "@/lib/api";
+import { Skeleton } from "@/components/ui/Skeleton";
+
+interface RoadmapAction {
+  week: number;
+  action?: string;
+  actionKey?: string;
+  category: "transport" | "food" | "energy" | "shopping";
+  saving_kg_month: number;
+  difficulty: "Easy" | "Medium" | "Hard";
+  india_tip?: string;
+  tipKey?: string;
+}
 
 const COLORS = ["#1D9E75", "#F59E0B", "#3B82F6", "#EF4444"];
 const CATS = ["Transport", "Food", "Energy", "Shopping"];
@@ -19,10 +33,6 @@ const diffClass = (d: "Easy" | "Medium" | "Hard") =>
   d === "Easy" ? "bg-primary/15 text-primary"
     : d === "Medium" ? "bg-accent/20 text-accent-foreground"
     : "bg-destructive/15 text-destructive";
-
-function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-xl bg-muted ${className}`} />;
-}
 
 const STATIC_PLAN: RoadmapAction[] = [
   { week: 1, actionKey: "plan.action.1", category: "transport", saving_kg_month: 45, difficulty: "Easy", tipKey: "plan.tip.1" },
@@ -114,27 +124,39 @@ export default function Insights() {
   }, [weeklyData]);
 
   const fetchSummary = async () => {
-    if (!profile) return;
+    if (!profile || !user) return;
     setLoadingSummary(true);
     try {
-      const text = await generateWeeklySummary({
-        userName: profile.name,
-        weeklyData,
-        bestDay: bestDayLabel,
-        streak: profile.streak,
-        language,
+      const token = await user.getIdToken();
+      const res = await fetch(`${API_BASE}/api/insights/weekly`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId: user.uid,
+          userName: profile.name,
+          weeklyData,
+          bestDay: bestDayLabel,
+          streak: profile.streak,
+          language,
+        }),
       });
-      setWeeklySummary(text);
+
+      if (!res.ok) throw new Error("Failed to generate weekly summary");
+      const data = await res.json();
+      setWeeklySummary(data.text);
     } catch {
-      setWeeklySummary("AI weekly summary unavailable — check your API key.");
+      setWeeklySummary("AI weekly summary unavailable.");
     } finally {
       setLoadingSummary(false);
     }
   };
 
   useEffect(() => {
-    if (profile && weeklyData.some(v => v > 0)) fetchSummary();
-  }, [profile?.streak, language]);
+    if (profile && user && weeklyData.some(v => v > 0)) fetchSummary();
+  }, [profile?.streak, language, user]);
 
   const handleGetRoadmap = () => {
     if (!profile) return;
@@ -144,14 +166,13 @@ export default function Insights() {
 
   // ── Carbon Story stats ──
   const streak = profile?.streak ?? 0;
-  const CITY_AVG: Record<string, number> = { Mangaluru: 1.9, Bengaluru: 2.4, Mumbai: 2.1, Chennai: 2.0 };
-  const cityAvg = CITY_AVG[profile?.city ?? ""] ?? 1.9;
+  const cityAvg = CITY_AVERAGES[profile?.city ?? ""] ?? CITY_AVERAGES.national;
   const savedVsAvg = avgKg > 0 ? Math.round(((cityAvg - avgKg) / cityAvg) * 100) : 0;
 
   return (
     <AppShell>
-      <h1 className="text-2xl font-extrabold tracking-tight">{t("insights.title")}</h1>
-      <p className="text-sm text-muted-foreground mb-4">{t("insights.subtitle")}</p>
+      <h1 className="text-2xl font-extrabold tracking-tight text-white">{t("insights.title")}</h1>
+      <p className="text-sm text-white/70 mb-4">{t("insights.subtitle")}</p>
 
       <div className="mb-6">
         <WeeklySummary
@@ -167,10 +188,10 @@ export default function Insights() {
       {/* Reduction Roadmap */}
       {loadingRoadmap && (
         <section className="mb-6">
-          <h2 className="mb-3 text-sm font-bold">{t("insights.generatingPlan")}</h2>
+          <h2 className="mb-3 text-sm font-bold text-white">{t("insights.generatingPlan")}</h2>
           <div className="space-y-3">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-card)]">
+              <div key={i} className="glass-card rounded-2xl p-4">
                 <Skeleton className="mb-3 h-3 w-16" />
                 <div className="flex gap-3">
                   <Skeleton className="h-6 w-6 rounded-full" />
@@ -195,13 +216,13 @@ export default function Insights() {
 
       {showRoadmap && roadmap.length > 0 && !loadingRoadmap && (
         <section className="mb-6">
-          <h2 className="mb-3 text-sm font-bold">{t("insights.reductionPlan")}</h2>
+          <h2 className="mb-3 text-sm font-bold text-white">{t("insights.reductionPlan")}</h2>
           <div className="space-y-3">
             {[1, 2, 3, 4].map(week => {
               const weekActions = roadmap.filter(a => a.week === week);
               if (weekActions.length === 0) return null;
               return (
-                <div key={week} className="rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-card)]">
+                <GlowCard key={week} className="glass-card rounded-2xl p-4" enableStars={false} particleCount={0}>
                   <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">{t("plan.week")} {week}</h3>
                   <div className="space-y-3">
                     {weekActions.map((action, idx) => (
@@ -227,7 +248,7 @@ export default function Insights() {
                       </div>
                     ))}
                   </div>
-                </div>
+                </GlowCard>
               );
             })}
           </div>
@@ -235,8 +256,8 @@ export default function Insights() {
       )}
 
       {/* 30-Day Trend */}
-      <section className="rounded-3xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
-        <h2 className="text-sm font-bold mb-1">{t("insights.30dayTrend")}</h2>
+      <GlowCard className="glass-card rounded-3xl p-5" enableStars={false} particleCount={0}>
+        <h2 className="text-sm font-bold mb-1 text-white">{t("insights.30dayTrend")}</h2>
         <p className="text-[11px] text-muted-foreground mb-2">{t("insights.firestoreLabel")}</p>
         {monthlyTrend.length === 0 ? (
           <Skeleton className="h-44 w-full" />
@@ -244,18 +265,18 @@ export default function Insights() {
           <div className="mt-2 h-44">
             <ResponsiveContainer>
               <LineChart data={monthlyTrend} margin={{ top: 8, right: 8, left: -28, bottom: 0 }}>
-                <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fontSize: 9, fill: "#6B7280" }} interval={4} />
+                <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fontSize: 9, fill: "#D1FAE5" }} interval={4} />
                 <Tooltip contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 2px 12px rgba(0,0,0,.1)", fontSize: 12 }} />
                 <Line type="monotone" dataKey="kg" stroke="#1D9E75" strokeWidth={3} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
         )}
-      </section>
+      </GlowCard>
 
       {/* Category breakdown */}
-      <section className="mt-5 rounded-3xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
-        <h2 className="text-sm font-bold">{t("insights.categoryBreakdown")}</h2>
+      <GlowCard className="glass-card mt-5 rounded-3xl p-5" enableStars={false} particleCount={0}>
+        <h2 className="text-sm font-bold text-white">{t("insights.categoryBreakdown")}</h2>
         {categoryBreakdown.length === 0 ? (
           <p className="mt-4 text-center text-sm text-muted-foreground">{t("insights.breakdownEmpty")}</p>
         ) : (
@@ -271,11 +292,11 @@ export default function Insights() {
             </ResponsiveContainer>
           </div>
         )}
-      </section>
+      </GlowCard>
 
       {/* Carbon Story */}
       <section className="mt-5">
-        <h2 className="mb-3 text-sm font-bold">{t("insights.carbonStory")}</h2>
+        <h2 className="mb-3 text-sm font-bold text-white">{t("insights.carbonStory")}</h2>
         <div className="grid grid-cols-3 gap-2">
           <Stat label={t("insights.bestDay")} value={bestDayKg === Infinity ? "—" : bestDayKg.toFixed(1)} unit="kg" />
           <Stat label={t("insights.streak")} value={streak.toString()} unit={t("dashboard.days")} />
@@ -288,10 +309,10 @@ export default function Insights() {
 
 function Stat({ label, value, unit }: { label: string; value: string; unit: string }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-3 text-center shadow-[var(--shadow-card)]">
-      <div className="text-lg font-extrabold">{value}</div>
-      <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{unit}</div>
-      <div className="mt-1 text-[11px] text-foreground">{label}</div>
-    </div>
+    <GlowCard className="glass-card rounded-2xl p-3 text-center" enableStars={false} particleCount={0}>
+      <div className="text-lg font-extrabold text-white">{value}</div>
+      <div className="text-[10px] font-semibold uppercase tracking-wider text-white/60">{unit}</div>
+      <div className="mt-1 text-[11px] text-white/80">{label}</div>
+    </GlowCard>
   );
 }

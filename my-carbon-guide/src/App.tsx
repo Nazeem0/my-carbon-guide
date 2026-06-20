@@ -1,22 +1,36 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Onboarding from "./routes/index";
-import Dashboard from "./routes/dashboard";
-import Insights from "./routes/insights";
-import LeaderboardPage from "./routes/leaderboard";
-import LogPage from "./routes/log";
-import ProfilePage from "./routes/profile";
-import DetailedInsight from "./routes/detailed-insight";
 import { AuthProvider } from "./contexts/AuthContext";
 import { SyncProvider } from "./contexts/SyncProvider";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { Skeleton } from "./components/ui/Skeleton";
+
+const Onboarding = lazy(() => import("./routes/index"));
+const Dashboard = lazy(() => import("./routes/dashboard"));
+const Insights = lazy(() => import("./routes/insights"));
+const LeaderboardPage = lazy(() => import("./routes/leaderboard"));
+const LogPage = lazy(() => import("./routes/log"));
+const ProfilePage = lazy(() => import("./routes/profile"));
+const DetailedInsight = lazy(() => import("./routes/detailed-insight"));
+
+function PageLoader() {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <Skeleton className="h-32 w-64" />
+    </div>
+  );
+}
 
 export function App() {
   return (
+    <ErrorBoundary>
     <AuthProvider>
       <LanguageProvider>
       <SyncProvider>
         <BrowserRouter>
+        <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Onboarding />} />
@@ -29,9 +43,11 @@ export function App() {
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/detailed-insight" element={<ProtectedRoute><DetailedInsight /></ProtectedRoute>} />
         </Routes>
+        </Suspense>
         </BrowserRouter>
       </SyncProvider>
       </LanguageProvider>
     </AuthProvider>
+    </ErrorBoundary>
   );
 }

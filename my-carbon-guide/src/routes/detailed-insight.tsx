@@ -1,18 +1,34 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AppShell } from "@/components/ecolog/AppShell";
+import { GlowCard } from "@/components/ecolog/GlowCard";
 import { ArrowLeft, Sparkles, TrendingDown, Target, Zap, Leaf, Send, MessageSquare } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { API_BASE } from "@/lib/api";
+
+interface InsightData {
+  title: string;
+  summary: string;
+  breakdown: { label: string; value: number; color: string }[];
+  tips: string[];
+  co2Saved: number;
+  equivalent: string;
+}
+
+interface ChatMessage {
+  role: string;
+  text: string;
+}
 
 export default function DetailedInsight() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [insightData, setInsightData] = useState<any>(null);
+  const [insightData, setInsightData] = useState<InsightData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [chatMessages, setChatMessages] = useState<{role: string, text: string}[]>([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -45,10 +61,13 @@ export default function DetailedInsight() {
           language,
         };
 
-        const res = await fetch("http://localhost:8000/api/insights/detailed", {
+        const token = await user.getIdToken();
+
+        const res = await fetch(`${API_BASE}/api/insights/detailed`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
           },
           body: JSON.stringify(payload),
         });
@@ -94,9 +113,14 @@ export default function DetailedInsight() {
         language,
       };
 
-      const res = await fetch("http://localhost:8000/api/insights/chat", {
+      const token = await user!.getIdToken();
+
+      const res = await fetch(`${API_BASE}/api/insights/chat`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
         body: JSON.stringify(payload),
       });
 
@@ -147,12 +171,12 @@ export default function DetailedInsight() {
       ) : insightData ? (
         <div className="flex flex-col" style={{ height: "calc(100vh - 180px)" }}>
           {/* AI Chat Interface */}
-          <section className="flex-1 flex flex-col rounded-2xl border border-primary/20 bg-card p-4 shadow-[var(--shadow-card)] min-h-0">
+          <GlowCard className="flex-1 flex flex-col rounded-2xl border border-white/20 bg-white/20 p-4 shadow-lg shadow-black/5 backdrop-blur-xl dark:bg-white/10 min-h-0" enableStars={false} particleCount={0}>
             <h2 className="shrink-0 text-[10px] font-bold uppercase tracking-wider text-primary mb-3 flex items-center gap-1">
               <MessageSquare size={12} /> {t("detailedInsight.askEcoLogAI")}
             </h2>
             
-            <div className="flex-1 overflow-y-auto mb-3 space-y-3 pr-1 scrollbar-thin scrollbar-thumb-muted">
+            <div className="flex-1 overflow-y-auto mb-3 space-y-3 pr-1 scrollbar-none">
               {chatMessages.length === 0 ? (
                 <div className="flex flex-col h-full items-center justify-center text-center gap-3 px-4">
                   <div className="text-4xl">🌿</div>
@@ -201,7 +225,7 @@ export default function DetailedInsight() {
                 placeholder={t("detailedInsight.inputPlaceholder")}
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
-                className="flex-1 bg-muted/50 border border-border rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-primary/50 transition-colors"
+                className="flex-1 bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-primary/50 transition-colors backdrop-blur-xl"
                 disabled={chatLoading}
               />
               <button
@@ -212,7 +236,7 @@ export default function DetailedInsight() {
                 <Send size={14} />
               </button>
             </form>
-          </section>
+          </GlowCard>
 
 
         </div>

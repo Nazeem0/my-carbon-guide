@@ -1,21 +1,16 @@
 import { useState, useEffect } from "react";
 import { AppShell } from "@/components/ecolog/AppShell";
+import { GlowCard } from "@/components/ecolog/GlowCard";
 import { useActivities } from "@/hooks/useActivities";
-import { Bell, Globe, Moon, LogOut, ChevronRight, Pencil, X, MapPin, GraduationCap, User, Phone, AlignLeft, Check } from "lucide-react";
+import { Bell, Globe, LogOut, ChevronRight, Pencil, X, MapPin, GraduationCap, User, Phone, AlignLeft, Check } from "lucide-react";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAuth } from "@/contexts/AuthContext";
-import { useDarkMode } from "@/hooks/useDarkMode";
 import { useLanguage, type Language } from "@/contexts/LanguageContext";
-
-/* ── Skeleton helper ── */
-function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-xl bg-muted ${className}`} />;
-}
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function ProfilePage() {
   const { profile, loading, updateGoal, updateProfile } = useUserProfile();
   const { logout } = useAuth();
-  const { dark, setDark } = useDarkMode();
   const { activities } = useActivities(profile?.dailyGoalKg ?? 2.0);
 
   const dynamicBadges = [
@@ -103,12 +98,11 @@ export default function ProfilePage() {
       <section className="flex flex-col items-center pt-2 text-center">
         <button onClick={() => setEditOpen(true)} className="relative group" aria-label={t("settings.editProfile")}>
           <div
-            className="grid h-20 w-20 place-items-center rounded-full text-2xl font-bold text-primary-foreground"
-            style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-elevated)" }}
+            className="grid h-20 w-20 place-items-center rounded-full text-2xl font-bold bg-white/10 border border-white/20 backdrop-blur-2xl"
           >
             {initials}
           </div>
-          <span className="absolute bottom-0 right-0 flex h-6 w-6 items-center justify-center rounded-full bg-card border border-border shadow-sm group-hover:scale-110 transition-transform">
+          <span className="absolute bottom-0 right-0 flex h-6 w-6 items-center justify-center rounded-full bg-white/20 border border-white/30 shadow-sm group-hover:scale-110 transition-transform backdrop-blur-xl">
             <Pencil size={11} className="text-primary" />
           </span>
         </button>
@@ -128,14 +122,14 @@ export default function ProfilePage() {
       <section className="mt-5 grid grid-cols-3 gap-2">
         <Stat label={t("stats.today")} value={`${(profile.todayKg ?? 0).toFixed(2)} kg`} />
         <Stat label={t("stats.daysActive")} value={profile.daysActive} />
-        <div className="rounded-2xl border border-border bg-card p-3 text-center shadow-[var(--shadow-card)]">
+        <GlowCard className="rounded-2xl border border-white/20 bg-white/20 p-3 text-center shadow-lg shadow-black/5 backdrop-blur-xl dark:bg-white/10" enableStars={false} particleCount={0}>
           <div className={`text-lg font-extrabold ${rankColor}`}>#{profile.rank}</div>
           <div className="text-[11px] text-muted-foreground">{t("stats.rank")}</div>
-        </div>
+        </GlowCard>
       </section>
 
       {/* ── Daily Goal ── */}
-      <section className="mt-5 rounded-3xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+      <GlowCard className="mt-5 rounded-3xl border border-white/20 bg-white/20 p-5 shadow-lg shadow-black/5 backdrop-blur-xl dark:bg-white/10" enableStars={false} particleCount={0}>
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-bold">{t("profile.dailyGoal")}</h2>
           <span className="text-sm font-extrabold text-primary">{goal.toFixed(1)} kg</span>
@@ -150,55 +144,58 @@ export default function ProfilePage() {
         <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
           <span>0.5 kg</span><span>5 kg</span>
         </div>
-      </section>
+      </GlowCard>
 
       {/* ── Badges ── */}
       <section className="mt-5">
         <h2 className="mb-3 text-sm font-bold">{t("profile.badges")}</h2>
         <div className="grid grid-cols-4 gap-3">
           {dynamicBadges.map((b) => (
-            <div key={b.key} className={`flex flex-col items-center gap-1.5 rounded-2xl border p-2.5 text-center ${b.earned ? "border-border bg-card shadow-[var(--shadow-card)]" : "border-border bg-secondary/50 opacity-50"}`}>
-              <div className="text-2xl">{b.emoji}</div>
-              <div className="text-[10px] font-semibold leading-tight">{t(b.key)}</div>
-            </div>
+            <GlowCard 
+              key={b.key} 
+              className={`flex flex-col items-center gap-1.5 rounded-2xl border p-2.5 text-center ${b.earned ? "border-white/20 bg-white/20 shadow-lg shadow-black/5 backdrop-blur-xl dark:bg-white/10" : "border-white/20 bg-white/5 opacity-50"}`}
+              enableStars={b.earned}
+              particleCount={b.earned ? 5 : 0}
+            >
+              <div className="text-2xl relative z-10">{b.emoji}</div>
+              <div className="text-[10px] font-semibold leading-tight relative z-10">{t(b.key)}</div>
+            </GlowCard>
           ))}
         </div>
       </section>
 
       {/* ── Settings ── */}
-      <section className="mt-5 overflow-hidden rounded-3xl border border-border bg-card shadow-[var(--shadow-card)]">
+      <GlowCard className="mt-5 overflow-hidden rounded-3xl border border-white/20 bg-white/20 shadow-lg shadow-black/5 backdrop-blur-xl dark:bg-white/10" enableStars={false} particleCount={0}>
         <div onClick={() => setEditOpen(true)} className="cursor-pointer">
           <Row icon={<Pencil size={18} />} label={t("settings.editProfile")} trailing={profile.city}>
             <ChevronRight size={16} className="text-muted-foreground" />
           </Row>
         </div>
+        <div>
         <Row icon={<Bell size={18} />} label={t("settings.notifications")}>
-          <Toggle on={notif} onChange={setNotif} />
-        </Row>
+          <Toggle on={notif} onChange={setNotif} /> </Row>
+          </div>
         <div onClick={() => setLangOpen(true)} className="cursor-pointer">
           <Row icon={<Globe size={18} />} label={t("settings.language")} trailing={{ en: "English", hi: "हिंदी", kn: "ಕನ್ನಡ" }[language]}>
             <ChevronRight size={16} className="text-muted-foreground" />
           </Row>
         </div>
-        <Row icon={<Moon size={18} />} label={t("settings.darkMode")}>
-          <Toggle on={dark} onChange={setDark} />
-        </Row>
         <div onClick={logout} className="cursor-pointer">
           <Row icon={<LogOut size={18} />} label={t("settings.signOut")} danger />
         </div>
-      </section>
+      </GlowCard>
 
       {/* ── Language Bottom Sheet ── */}
       {langOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/40 backdrop-blur-sm" onClick={() => setLangOpen(false)}>
+        <div className="fixed inset-0 z-50 flex flex-col justify-end mx-auto max-w-[430px] bg-black/40 backdrop-blur-sm" onClick={() => setLangOpen(false)}>
           <div
-            className="mx-auto w-full max-w-[430px] rounded-t-3xl border-t border-border bg-card p-6 shadow-2xl"
+            className="mx-auto w-full max-w-[430px] rounded-3xl border border-white/20 bg-white/20 p-6 shadow-2xl backdrop-blur-xl dark:bg-white/10 mb-28"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border" />
+            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/30" />
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-base font-bold">{t("settings.language")}</h2>
-              <button onClick={() => setLangOpen(false)} className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={() => setLangOpen(false)} className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-muted-foreground hover:text-foreground transition-colors">
                 <X size={15} />
               </button>
             </div>
@@ -224,20 +221,20 @@ export default function ProfilePage() {
 
       {/* ── Edit Profile Bottom Sheet ── */}
       {editOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/40 backdrop-blur-sm" onClick={() => setEditOpen(false)}>
+        <div className="fixed inset-0 z-50 flex flex-col justify-end mx-auto max-w-[430px] bg-black/40 backdrop-blur-sm" onClick={() => setEditOpen(false)}>
           <div
-            className="mx-auto w-full max-w-[430px] rounded-t-3xl border-t border-border bg-card p-6 shadow-2xl"
+            className="mx-auto w-full max-w-[430px] rounded-3xl border border-white/20 bg-white/20 p-6 shadow-2xl backdrop-blur-xl dark:bg-white/10 mb-28"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border" />
+            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/30" />
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-base font-bold">{t("settings.editProfile")}</h2>
-              <button onClick={() => setEditOpen(false)} className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={() => setEditOpen(false)} className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-muted-foreground hover:text-foreground transition-colors">
                 <X size={15} />
               </button>
             </div>
 
-            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto scrollbar-none pr-1">
               <Field label={t("profile.displayName")} icon={<User size={14} />}>
                 <input
                   type="text" value={editName} onChange={(e) => setEditName(e.target.value)}
@@ -326,10 +323,10 @@ function Field({ label, icon, children }: { label: string; icon: React.ReactNode
 
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-3 text-center shadow-[var(--shadow-card)]">
+    <GlowCard className="rounded-2xl border border-white/20 bg-white/20 p-3 text-center shadow-lg shadow-black/5 backdrop-blur-xl dark:bg-white/10" enableStars={false} particleCount={0}>
       <div className="text-lg font-extrabold">{value}</div>
       <div className="text-[11px] text-muted-foreground">{label}</div>
-    </div>
+    </GlowCard>
   );
 }
 
@@ -351,7 +348,7 @@ function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void 
       onClick={(e) => { e.stopPropagation(); onChange(!on); }}
       className={`relative inline-flex h-6 w-11 cursor-pointer items-center rounded-full transition-colors ${on ? "bg-primary" : "bg-muted"}`}
     >
-      <span className={`inline-block h-5 w-5 transform rounded-full bg-card shadow transition-transform ${on ? "translate-x-5" : "translate-x-0.5"}`} />
+      <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${on ? "translate-x-5" : "translate-x-0.5"}`} />
     </span>
   );
 }

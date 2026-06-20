@@ -13,13 +13,14 @@ import asyncio
 from datetime import timedelta, date
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, Field
 
 from firebase_init import db
 from auth import verify_token
-from carbon import calculate_co2
+from carbon import calculate_co2, EMISSION_FACTORS
 from ws_manager import manager
+from utils import serialize_activity
 
 router = APIRouter()
 
@@ -27,8 +28,8 @@ router = APIRouter()
 # ─── Pydantic models ──────────────────────────────────────────────────────────
 
 class ActivityIn(BaseModel):
-    activityKey: str
-    quantity: float
+    activityKey: str = Field(..., pattern=r"^[a-z_]+$", max_length=50)
+    quantity: float = Field(..., gt=0, le=10000)
 
 
 # ─── Helper: recalculate rank & streak, then broadcast ───────────────────────
@@ -102,13 +103,7 @@ def _recalculate_sync(uid: str) -> dict:
                 all_dates.add(day)
                 if day == today:
                     today_total += data.get("co2_kg", 0.0)
-        all_activities.append({
-            "id": doc.id,
-            "activityKey": data.get("activityKey", ""),
-            "quantity": data.get("quantity", 0),
-            "co2_kg": data.get("co2_kg", 0.0),
-            "timestamp": ts.isoformat() if ts and hasattr(ts, "isoformat") else str(ts),
-        })
+        all_activities.append(serialize_activity(doc))
 
     today_total = round(today_total, 3)
 
@@ -185,6 +180,10 @@ async def add_activity(
     token: Annotated[dict, Depends(verify_token)],
 ):
     uid = token["uid"]
+
+    if body.activityKey not in EMISSION_FACTORS:
+        raise HTTPException(status_code=400, detail=f"Unknown activityKey: {body.activityKey}")
+
     calc = calculate_co2(body.activityKey, body.quantity)
 
     await asyncio.to_thread(

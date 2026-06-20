@@ -1,21 +1,22 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useActivities } from "@/hooks/useActivities";
-import { useCarbon } from "@/hooks/useCarbon";
-import { generateDailyInsight } from "@/services/gemini";
+import { useCarbon, CITY_AVERAGES } from "@/hooks/useCarbon";
 import { ActivityBottomSheet } from "@/components/ecolog/ActivityBottomSheet";
 import { ToastHost } from "@/components/ecolog/Toast";
 import { AppShell } from "@/components/ecolog/AppShell";
-import { Flame, Trophy, MapPin, Sparkles, RefreshCw, TrendingDown } from "lucide-react";
+import { GlowCard } from "@/components/ecolog/GlowCard";
+import CountUp from "@/components/CountUp";
+import { Trophy, Sparkles, RefreshCw, TrendingDown } from "lucide-react";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-xl bg-muted ${className}`} />;
-}
+import { useAuth } from "@/contexts/AuthContext";
+import { API_BASE } from "@/lib/api";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { profile, loading: profileLoading } = useUserProfile();
   const { calculateCO2 } = useCarbon();
   
@@ -23,7 +24,7 @@ export default function Dashboard() {
   const { activities, loaded, addActivity, getDailyTotal, getTopActivity } =
     useActivities(dailyGoal);
 
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [insight, setInsight] = useState("");
   const [loadingInsight, setLoadingInsight] = useState(true);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -45,42 +46,135 @@ export default function Dashboard() {
     };
   }, [topAct, calculateCO2]);
 
+  const goalPct = Math.min((todayKg / dailyGoal) * 100, 100);
+  const rawPct = (todayKg / dailyGoal) * 100;
+  const gaugeColor = goalPct < 60 ? "rgb(16,185,129)" : goalPct < 85 ? "rgb(245,158,11)" : "rgb(239,68,68)";
+
+  const circumference = 2 * Math.PI * 52;
+  const gapDeg = 30;
+  const arcSweep = 360 - gapDeg;
+  const arcLen = circumference * (arcSweep / 360);
+  const gapLen = circumference - arcLen;
+  const fromAngle = gapDeg / 2;
+
+  const markerR = 52;
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const arcX = (deg: number) => 60 + markerR * Math.cos(toRad(deg));
+  const arcY = (deg: number) => 60 + markerR * Math.sin(toRad(deg));
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setMounted(true), 50); return () => clearTimeout(t); }, []);
+
+  const [markerAngle, setMarkerAngle] = useState(fromAngle);
+  const markerRaf = useRef(0);
+  const markerAngleRef = useRef(fromAngle);
+  const markerStartAngle = useRef(fromAngle);
+  const markerStartTs = useRef(0);
+
+  const animateMarker = useCallback((targetAngle: number) => {
+    markerStartAngle.current = markerAngleRef.current;
+    markerStartTs.current = performance.now();
+    const duration = 1000;
+    const step = (now: number) => {
+      const elapsed = now - markerStartTs.current;
+      const t = Math.min(elapsed / duration, 1);
+      const ease = 1 - Math.pow(1 - t, 3);
+      const angle = markerStartAngle.current + (targetAngle - markerStartAngle.current) * ease;
+      markerAngleRef.current = angle;
+      setMarkerAngle(angle);
+      if (t < 1) markerRaf.current = requestAnimationFrame(step);
+    };
+    cancelAnimationFrame(markerRaf.current);
+    markerRaf.current = requestAnimationFrame(step);
+  }, []);
+
+  const targetEndAngle = fromAngle + arcSweep * (Math.min(rawPct, 100) / 100);
+
+  useEffect(() => {
+    if (!mounted || rawPct <= 0) return;
+    animateMarker(targetEndAngle);
+    return () => cancelAnimationFrame(markerRaf.current);
+  }, [mounted, targetEndAngle]);
+
+  const startMarkerX = arcX(fromAngle);
+  const startMarkerY = arcY(fromAngle);
+  const endMarkerX = arcX(markerAngle);
+  const endMarkerY = arcY(markerAngle);
+  const markerColor = useMemo(() => {
+    const p = Math.min(Math.max(rawPct, 0), 100);
+    if (p <= 50) return "#10b981";
+    if (p <= 80) return "#eab308";
+    if (p < 100) return "#f97316";
+    return "#ef4444";
+  }, [rawPct]);
+
+  const gaugeGradient = useMemo(() => {
+    const g = "#10b981", y = "#eab308", o = "#f97316", r = "#ef4444";
+    const p = Math.min(Math.max(rawPct, 0), 100);
+    const arcProgress = (p / 100) * arcSweep;
+    const g50 = 0.5 * arcSweep;
+    const g80 = 0.8 * arcSweep;
+    if (p <= 0) return "transparent";
+    const s = [`${g} 0deg`];
+    if (arcProgress <= g50) {
+      s.push(`${g} ${arcProgress}deg`, `transparent ${arcProgress}deg`);
+    } else if (arcProgress <= g80) {
+      s.push(`${g} ${g50}deg`, `${y} ${arcProgress}deg`, `transparent ${arcProgress}deg`);
+    } else if (p < 100) {
+      s.push(`${g} ${g50}deg`, `${y} ${g80}deg`, `${o} ${arcProgress}deg`, `transparent ${arcProgress}deg`);
+    } else {
+      s.push(`${g} ${g50}deg`, `${y} ${g80}deg`, `${o} ${arcSweep * 0.95}deg`, `${r} ${arcSweep}deg`);
+    }
+    return `conic-gradient(from ${fromAngle}deg, ${s.join(", ")})`;
+  }, [rawPct, arcSweep, fromAngle]);
+
   const fetchInsight = async () => {
-    if (!profile) return;
+    if (!profile || !user) return;
     setLoadingInsight(true);
     try {
       const topLabel = topAct ? calculateCO2(topAct.activityKey, topAct.quantity).label : "No emissions";
       
-      // Calculate real weekly average from `activities`
       const oneWeekAgo = new Date();
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
       const weekLogs = activities.filter(a => new Date(a.timestamp) >= oneWeekAgo);
       const weekTotal = weekLogs.reduce((sum, a) => sum + a.co2_kg, 0);
       const weeklyAvg = parseFloat((weekTotal / 7).toFixed(2));
 
-      const text = await generateDailyInsight({
-        userName: profile.name,
-        city: profile.city,
-        todayKg,
-        weeklyAvg: weeklyAvg > 0 ? weeklyAvg : 1.34, // fallback if new
-        cityAvg: 1.9,
-        topActivity: topLabel,
-        streak: profile.streak,
-        language: "en",
+      const token = await user.getIdToken();
+      const res = await fetch(`${API_BASE}/api/insights/daily`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId: user.uid,
+          userName: profile.name,
+          city: profile.city,
+          todayKg,
+          weeklyAvg: weeklyAvg > 0 ? weeklyAvg : 1.34,
+          cityAvg: CITY_AVERAGES[profile.city] ?? CITY_AVERAGES.national,
+          topActivity: topLabel,
+          streak: profile.streak,
+          language,
+        }),
       });
-      setInsight(text);
+
+      if (!res.ok) throw new Error("Failed to generate insight");
+      const data = await res.json();
+      setInsight(data.text);
     } catch {
-      setInsight("AI insight unavailable — check your API key");
+      setInsight("AI insight unavailable");
     } finally {
       setLoadingInsight(false);
     }
   };
 
   useEffect(() => { 
-    if (profile) {
+    if (profile && user) {
       fetchInsight();
     }
-  }, [todayKg, profile]);
+  }, [todayKg, profile, user, language]);
 
   const handleQuickLogClick = (cat: "transport" | "food" | "energy" | "shopping") => {
     setSelectedCategory(cat);
@@ -89,16 +183,8 @@ export default function Dashboard() {
 
   if (profileLoading || !profile) {
     return (
-      <AppShell hideNavbar>
+      <AppShell hideStreak>
         <ToastHost />
-        {/* Top bar skeleton */}
-        <div className="flex items-center justify-between pt-2 pb-4">
-          <div className="space-y-1">
-            <Skeleton className="h-5 w-24" />
-            <Skeleton className="h-3 w-16" />
-          </div>
-          <Skeleton className="h-8 w-8 rounded-full" />
-        </div>
         {/* Pills skeleton */}
         <div className="flex gap-2">
           <Skeleton className="h-6 w-24 rounded-full" />
@@ -127,53 +213,63 @@ export default function Dashboard() {
   }
 
   const initials = (profile.name || "User").split(" ").map((s) => s[0]).slice(0, 2).join("").toUpperCase();
-  const goalPct = Math.min(percentage, 100);
 
   return (
-    <AppShell hideNavbar>
+    <AppShell hideStreak>
       <ToastHost />
-
-      {/* ── Top Bar ── */}
-      <div className="flex items-center justify-between pt-2 pb-4">
-        <div>
-          <span className="text-xl font-bold tracking-tight text-primary">🌿 EcoLog</span>
-          <p className="text-xs text-muted-foreground">{profile.city}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="grid h-8 w-8 place-items-center rounded-full bg-primary text-xs font-extrabold text-primary-foreground">
-            {initials}
-          </div>
-        </div>
-      </div>
 
       {/* ── Stat Pills ── */}
       <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
-        <span className="shrink-0 flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 text-[11px] font-bold text-amber-600 uppercase tracking-wider">
-          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">🔥 {profile.streak} {t("dashboard.days")}</span>
-        </span>
-        <span className="shrink-0 flex items-center gap-1 rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-[11px] font-bold text-primary uppercase tracking-wider">
-          <Trophy size={11} /> Rank #{profile.rank}
-        </span>
+        <GlowCard className="shrink-0 flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 text-[11px] font-bold text-amber-600 uppercase tracking-wider" particleCount={5} enableStars={true}>
+          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider relative z-10">🔥 {profile.streak} {t("dashboard.days")}</span>
+        </GlowCard>
+        <GlowCard className="shrink-0 flex items-center gap-1 rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-[11px] font-bold text-primary uppercase tracking-wider" particleCount={5} enableStars={true}>
+          <Trophy size={11} className="relative z-10" /> <span className="relative z-10">Rank #{profile.rank}</span>
+        </GlowCard>
       </div>
 
       {/* ── Today's Progress Ring (CSS) ── */}
       <div className="mt-5 flex flex-col items-center">
-        <div className="relative grid h-36 w-36 place-items-center">
+        <div className="relative grid h-48 w-48 place-items-center gauge-glow" style={{ "--glow-color": gaugeColor } as React.CSSProperties}>
+          {rawPct >= 100 && <div className="absolute inset-[-10px] rounded-full gauge-pulse" style={{ boxShadow: `0 0 24px ${gaugeColor}60, 0 0 48px ${gaugeColor}30` }} />}
           <svg className="absolute inset-0 -rotate-90" viewBox="0 0 120 120">
-            <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" className="text-border" strokeWidth="10" />
             <circle
               cx="60" cy="60" r="52" fill="none"
-              stroke="currentColor" className="text-primary transition-all duration-700"
-              strokeWidth="10"
-              strokeDasharray={`${2 * Math.PI * 52}`}
-              strokeDashoffset={`${2 * Math.PI * 52 * (1 - goalPct / 100)}`}
-              strokeLinecap="round"
+              stroke="currentColor" className="text-border" strokeWidth="10"
+              strokeDasharray={`${arcLen} ${gapLen}`}
+              strokeLinecap="butt"
+              transform={`rotate(${fromAngle} 60 60)`}
             />
+            <circle cx={startMarkerX} cy={startMarkerY} r="4" fill="#10b981" stroke="#0a7a56" strokeWidth="1" />
+            {rawPct > 0 && (
+              <>
+                <circle
+                  cx={endMarkerX} cy={endMarkerY} r="12"
+                  fill={markerColor}
+                  opacity="0.3"
+                  style={{ filter: "blur(4px)" }}
+                />
+                <circle
+                  cx={endMarkerX} cy={endMarkerY} r="8"
+                  fill={markerColor}
+                />
+              </>
+            )}
           </svg>
+          <div
+            className="gauge-gradient-ring absolute inset-0 rounded-full"
+            style={{
+              background: gaugeGradient,
+              "--gauge-mask-pct": Math.min(Math.max((markerAngle - fromAngle) / arcSweep, 0), 1) * (arcSweep / 360) * 100,
+              "--gauge-from": fromAngle,
+            } as React.CSSProperties}
+          />
           <div className="text-center z-10">
-            <div className="text-2xl font-black text-foreground">{todayKg.toFixed(2)}</div>
-            <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{t("dashboard.kgCO2")}</div>
-            <div className="text-[10px] text-muted-foreground">{t("dashboard.ofGoal").replace("{goal}", dailyGoal.toString())}</div>
+            <div className="text-3xl font-black text-foreground">
+              <CountUp key={todayKg} to={todayKg} duration={0.8} className="tabular-nums" /> <span className="text-lg font-bold">kg</span>
+            </div>
+            <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{t("dashboard.kgCO2")}</div>
+            <div className="text-[11px] text-muted-foreground">{t("dashboard.ofGoal").replace("{goal}", dailyGoal.toString())}</div>
           </div>
         </div>
         <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
@@ -185,16 +281,17 @@ export default function Dashboard() {
       {/* ── Info Cards Row ── */}
       <div className="mt-5 grid grid-cols-2 gap-3">
         {/* Top Emission */}
-        <div className="rounded-2xl border-l-4 border-red-500 border-t border-r border-b border-border bg-card p-3 shadow-[var(--shadow-card)]">
+        <GlowCard className="rounded-2xl border-l-4 border-red-500 border-t border-r border-b border-white/10 bg-[rgba(20,40,32,0.6)] p-3 shadow-lg shadow-black/5 backdrop-blur-xl" enableStars={false}>
           <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">{t("dashboard.topEmission")}</span>
           <span className="text-[13px] font-extrabold text-foreground mt-1 block truncate">{topActivityDetails.label}</span>
           <span className="text-base font-black text-red-500 mt-1 block">{topActivityDetails.co2.toFixed(2)} {t("dashboard.kgCO2")}</span>
           <span className="text-[9px] text-muted-foreground">{topActivityDetails.info}</span>
-        </div>
+        </GlowCard>
 
         {/* AI Insight */}
-        <div 
-          className="rounded-2xl border border-primary/30 bg-primary/5 p-3 shadow-[var(--shadow-card)] cursor-pointer hover:border-primary/50 transition-colors"
+        <GlowCard
+          className="rounded-2xl border border-white/10 bg-[rgba(20,40,32,0.6)] p-3 shadow-lg shadow-black/5 backdrop-blur-xl cursor-pointer hover:border-white/20 transition-colors"
+          enableStars={false}
           onClick={() => {
             const weeklyTotal = activities.filter(a => new Date(a.timestamp) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).reduce((s, a) => s + a.co2_kg, 0);
             const wAvg = parseFloat((weeklyTotal / 7).toFixed(2));
@@ -204,7 +301,7 @@ export default function Dashboard() {
                 city: profile?.city || "City",
                 todayKg,
                 weeklyAvg: wAvg > 0 ? wAvg : 1.34,
-                cityAvg: 1.9,
+        cityAvg: CITY_AVERAGES[profile.city] ?? CITY_AVERAGES.national,
                 topActivity: topAct ? calculateCO2(topAct.activityKey, topAct.quantity).label : "No emissions",
                 streak: profile?.streak || 0
               } 
@@ -234,7 +331,7 @@ export default function Dashboard() {
             <p className="text-[11px] leading-relaxed text-foreground line-clamp-4">{insight}</p>
           )}
           <div className="mt-1.5 text-[9px] text-muted-foreground text-right">{t("dashboard.poweredBy")} ✨</div>
-        </div>
+        </GlowCard>
       </div>
 
       {/* ── Quick Log ── */}
@@ -247,15 +344,18 @@ export default function Dashboard() {
             { cat: "energy" as const, emoji: "⚡", label: t("category.energy"), color: "hover:border-sky-500/50 hover:bg-sky-500/5" },
             { cat: "shopping" as const, emoji: "🛍️", label: t("category.shopping"), color: "hover:border-amber-500/50 hover:bg-amber-500/5" },
           ].map(({ cat, emoji, label, color }) => (
-            <button
+            <GlowCard
               key={cat}
               onClick={() => handleQuickLogClick(cat)}
-              className={`flex flex-col items-center justify-center bg-card border border-border rounded-2xl p-3 transition-all duration-200 ${color} active:scale-95 group shadow-[var(--shadow-card)]`}
+              className={`flex flex-col items-center justify-center bg-[rgba(20,40,32,0.6)] border border-white/10 rounded-2xl p-3 transition-all duration-200 ${color} active:scale-95 group shadow-lg shadow-black/5 backdrop-blur-xl`}
+              enableStars={true}
+              enableBorderGlow={true}
+              particleCount={6}
             >
-              <span className="text-2xl mb-1 group-hover:scale-110 transition-transform duration-200">{emoji}</span>
-              <span className="text-xs font-bold text-foreground">{label}</span>
-              <span className="text-[9px] text-muted-foreground mt-0.5">{t("dashboard.tapToLog")}</span>
-            </button>
+              <span className="text-2xl mb-1 group-hover:scale-110 transition-transform duration-200 relative z-10">{emoji}</span>
+              <span className="text-xs font-bold text-foreground relative z-10">{label}</span>
+              <span className="text-[9px] text-muted-foreground mt-0.5 relative z-10">{t("dashboard.tapToLog")}</span>
+            </GlowCard>
           ))}
         </div>
       </div>

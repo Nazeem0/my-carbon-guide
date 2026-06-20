@@ -16,7 +16,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[430px]">
-      <div className="mx-3 mb-3 flex items-end justify-around rounded-3xl border border-border bg-card/95 px-2 py-2 shadow-[0_8px_24px_rgba(0,0,0,0.08)] backdrop-blur-md">
+      <div className="mx-3 mb-3 flex items-end justify-around rounded-3xl border border-white/20 bg-white/20 px-2 py-2 shadow-lg shadow-black/5 backdrop-blur-xl dark:bg-white/10">
         {tabs.map(({ to, labelKey, icon: Icon, center }) => {
           const active = pathname === to;
           if (center) {

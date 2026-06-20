@@ -25,7 +25,7 @@ export interface WeeklyAverageResult {
   trend: "improving" | "worsening" | "stable";
 }
 
-const CITY_AVERAGES: Record<string, number> = {
+export const CITY_AVERAGES: Record<string, number> = {
   Mangaluru: 1.9,
   Bengaluru: 2.4,
   Mumbai: 2.1,

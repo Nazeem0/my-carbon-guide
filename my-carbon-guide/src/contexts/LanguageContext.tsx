@@ -623,24 +623,33 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }
 
     const texts = Object.values(EN);
-    fetch(`${API_BASE}/api/translate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ texts, target: language }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.translations) {
-          const map: Record<string, string> = {};
-          const keys = Object.keys(EN);
-          keys.forEach((key, i) => {
-            map[key] = data.translations[i] ?? EN[key];
-          });
-          setTranslations(map);
-          localStorage.setItem(cacheKey, JSON.stringify(map));
-        }
-      })
-      .catch((err) => console.error("[LanguageContext] Translation fetch failed:", err));
+    import("firebase/auth").then(({ getAuth }) => {
+      const currentUser = getAuth().currentUser;
+      if (!currentUser) return;
+      return currentUser.getIdToken().then((token) => {
+        return fetch(`${API_BASE}/api/translate`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify({ texts, target: language }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.translations) {
+              const map: Record<string, string> = {};
+              const keys = Object.keys(EN);
+              keys.forEach((key, i) => {
+                map[key] = data.translations[i] ?? EN[key];
+              });
+              setTranslations(map);
+              localStorage.setItem(cacheKey, JSON.stringify(map));
+            }
+          })
+          .catch((err) => console.error("[LanguageContext] Translation fetch failed:", err));
+      });
+    }).catch(() => {});
   }, [language]);
 
   const setLanguage = useCallback((lang: Language) => {

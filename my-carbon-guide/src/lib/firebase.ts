@@ -3,7 +3,7 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDXA5gJo88wmgcbSpdbZOvW-Q9KNF76YVo",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "my-carbon-guide.firebaseapp.com",
   projectId: "my-carbon-guide",
   storageBucket: "my-carbon-guide.firebasestorage.app",

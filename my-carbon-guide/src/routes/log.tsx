@@ -26,7 +26,9 @@ export default function LogPage() {
   const list = useMemo(
     () =>
       activities.filter(
-        (a) => (tab === "All" || a.category === tab) && a.name.toLowerCase().includes(query.toLowerCase()),
+        (a) =>
+          (tab === "All" || a.category === tab) &&
+          a.name.toLowerCase().includes(query.toLowerCase()),
       ),
     [tab, query],
   );
@@ -47,54 +49,68 @@ export default function LogPage() {
   };
 
   return (
-        <AppShell>
+    <AppShell>
       <ToastHost />
       <div className="flex flex-col flex-1 pt-20">
-      <div>
-        <h1 className="text-2xl font-extrabold tracking-tight">{t("log.title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("log.subtitle")}</p>
-      </div>
+        <div>
+          <h1 className="text-2xl font-extrabold tracking-tight">{t("log.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("log.subtitle")}</p>
+        </div>
 
-      <GlowCard className="mt-4 flex items-center gap-2 rounded-2xl border border-white/20 bg-white/20 p-3 shadow-lg shadow-black/5 backdrop-blur-xl dark:bg-white/10" enableStars={false} particleCount={0}>
-        <Search size={18} className="text-muted-foreground relative z-10" />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={t("log.search")}
-          className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground relative z-10"
-        />
-        <button className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground relative z-10">
-          <Mic size={16} />
-        </button>
-      </GlowCard>
+        <GlowCard
+          className="mt-4 flex items-center gap-2 rounded-2xl border border-white/20 bg-white/20 p-3 shadow-lg shadow-black/5 backdrop-blur-xl dark:bg-white/10"
+          enableStars={false}
+          particleCount={0}
+        >
+          <Search size={18} className="text-muted-foreground relative z-10" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("log.search")}
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground relative z-10"
+          />
+          <button className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground relative z-10">
+            <Mic size={16} />
+          </button>
+        </GlowCard>
 
-      <div className="-mx-5 mt-4 overflow-x-auto px-5">
-        <div className="flex gap-2">
-          {tabs.map((tabName) => (
-            <button
-              key={tabName}
-              onClick={() => setTab(tabName)}
-              className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
-                tab === tabName ? "bg-primary text-primary-foreground" : "bg-white/20 text-foreground border border-white/20 backdrop-blur-xl"
-              }`}
-            >
-              {tabName === "All" ? t("tab.all") : t(`category.${tabName.toLowerCase()}`)}
-            </button>
+        <div className="-mx-5 mt-4 overflow-x-auto px-5">
+          <div className="flex gap-2">
+            {tabs.map((tabName) => (
+              <button
+                key={tabName}
+                onClick={() => setTab(tabName)}
+                className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
+                  tab === tabName
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-white/20 text-foreground border border-white/20 backdrop-blur-xl"
+                }`}
+              >
+                {tabName === "All" ? t("tab.all") : t(`category.${tabName.toLowerCase()}`)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          {list.map((a) => (
+            <ActivityTile key={a.id} a={a} onTap={() => openSheet(a)} />
           ))}
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        {list.map((a) => (
-          <ActivityTile key={a.id} a={a} onTap={() => openSheet(a)} />
-        ))}
-      </div>
-      </div>
-
-      <BottomSheet open={!!selected} onClose={() => setSelected(null)} title={selected ? t(`activity.${selected.id}`) : ""}>
+      <BottomSheet
+        open={!!selected}
+        onClose={() => setSelected(null)}
+        title={selected ? t(`activity.${selected.id}`) : ""}
+      >
         {selected && (
           <div>
-            <GlowCard className="rounded-2xl bg-secondary p-3 text-center" enableStars={false} particleCount={0}>
+            <GlowCard
+              className="rounded-2xl bg-secondary p-3 text-center"
+              enableStars={false}
+              particleCount={0}
+            >
               <div className="text-2xl relative z-10">{selected.emoji}</div>
               <div className="mt-0.5 text-[10px] text-muted-foreground relative z-10">
                 {t("log.perUnit").replace("{unit}", t(`unit.${selected.unit}`))}
@@ -126,10 +142,14 @@ export default function LogPage() {
                 +
               </button>
             </div>
-            <GlowCard className="mt-3 rounded-2xl bg-primary/10 p-2 text-center text-xs" enableStars={false} particleCount={0}>
+            <GlowCard
+              className="mt-3 rounded-2xl bg-primary/10 p-2 text-center text-xs"
+              enableStars={false}
+              particleCount={0}
+            >
               {t("log.totalImpact")}{" "}
               <span className="font-bold text-primary relative z-10">
-                {(selected.factor * qty) >= 1000
+                {selected.factor * qty >= 1000
                   ? ((selected.factor * qty) / 1000).toFixed(2) + " " + t("unit.kg")
                   : selected.factor * qty + " " + t("unit.g")}{" "}
                 CO₂

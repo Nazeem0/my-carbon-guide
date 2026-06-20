@@ -25,7 +25,10 @@ export function BottomNav() {
                 key={to}
                 to={to}
                 className="-mt-7 grid h-14 w-14 place-items-center rounded-full text-primary-foreground"
-                style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-elevated)" }}
+                style={{
+                  background: "var(--gradient-primary)",
+                  boxShadow: "var(--shadow-elevated)",
+                }}
                 aria-label={t("nav.quickLog")}
               >
                 <Icon size={26} strokeWidth={2.6} />
@@ -41,7 +44,9 @@ export function BottomNav() {
               }`}
             >
               <Icon size={20} strokeWidth={active ? 2.6 : 2} />
-              <span className={labelKey === "nav.home" && language === "kn" ? "text-[9px]" : ""}>{t(labelKey)}</span>
+              <span className={labelKey === "nav.home" && language === "kn" ? "text-[9px]" : ""}>
+                {t(labelKey)}
+              </span>
             </Link>
           );
         })}

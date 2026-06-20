@@ -2,7 +2,16 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AppShell } from "@/components/ecolog/AppShell";
 import { GlowCard } from "@/components/ecolog/GlowCard";
-import { ArrowLeft, Sparkles, TrendingDown, Target, Zap, Leaf, Send, MessageSquare } from "lucide-react";
+import {
+  ArrowLeft,
+  Sparkles,
+  TrendingDown,
+  Target,
+  Zap,
+  Leaf,
+  Send,
+  MessageSquare,
+} from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { API_BASE } from "@/lib/api";
@@ -67,7 +76,7 @@ export default function DetailedInsight() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(payload),
         });
@@ -77,14 +86,20 @@ export default function DetailedInsight() {
           try {
             const errorData = await res.json();
             errorDetail = errorData.detail || errorDetail;
-          } catch (e) {}
+          } catch (e) {
+            // ignore
+          }
           throw new Error(errorDetail);
         }
 
         const data = await res.json();
         setInsightData(data);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError(String(err));
+        }
       } finally {
         setLoading(false);
       }
@@ -99,7 +114,7 @@ export default function DetailedInsight() {
 
     const newMessage = { role: "user", text: chatInput.trim() };
     const updatedHistory = [...chatMessages, newMessage];
-    
+
     setChatMessages(updatedHistory);
     setChatInput("");
     setChatLoading(true);
@@ -119,7 +134,7 @@ export default function DetailedInsight() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });
@@ -161,7 +176,7 @@ export default function DetailedInsight() {
         <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-5 text-center text-destructive">
           <p className="font-semibold">{t("detailedInsight.errorTitle")}</p>
           <p className="text-xs mt-1">{error}</p>
-          <button 
+          <button
             onClick={() => navigate(-1)}
             className="mt-4 rounded-xl bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground hover:opacity-90"
           >
@@ -171,16 +186,22 @@ export default function DetailedInsight() {
       ) : insightData ? (
         <div className="flex flex-col" style={{ height: "calc(100vh - 180px)" }}>
           {/* AI Chat Interface */}
-          <GlowCard className="flex-1 flex flex-col rounded-2xl border border-white/20 bg-white/20 p-4 shadow-lg shadow-black/5 backdrop-blur-xl dark:bg-white/10 min-h-0" enableStars={false} particleCount={0}>
+          <GlowCard
+            className="flex-1 flex flex-col rounded-2xl border border-white/20 bg-white/20 p-4 shadow-lg shadow-black/5 backdrop-blur-xl dark:bg-white/10 min-h-0"
+            enableStars={false}
+            particleCount={0}
+          >
             <h2 className="shrink-0 text-[10px] font-bold uppercase tracking-wider text-primary mb-3 flex items-center gap-1">
               <MessageSquare size={12} /> {t("detailedInsight.askEcoLogAI")}
             </h2>
-            
+
             <div className="flex-1 overflow-y-auto mb-3 space-y-3 pr-1 scrollbar-none">
               {chatMessages.length === 0 ? (
                 <div className="flex flex-col h-full items-center justify-center text-center gap-3 px-4">
                   <div className="text-4xl">🌿</div>
-                  <p className="text-sm font-semibold text-foreground">{t("detailedInsight.chatPlaceholder")}</p>
+                  <p className="text-sm font-semibold text-foreground">
+                    {t("detailedInsight.chatPlaceholder")}
+                  </p>
                   <p className="text-xs text-muted-foreground max-w-[220px]">
                     {t("detailedInsight.chatSubtext")}
                   </p>
@@ -189,19 +210,32 @@ export default function DetailedInsight() {
                       t("detailedInsight.q1"),
                       t("detailedInsight.q2"),
                       t("detailedInsight.q3"),
-                    ].map(q => (
-                      <button key={q} onClick={() => { setChatInput(q); }} className="text-[10px] border border-primary/30 rounded-full px-3 py-1 text-primary hover:bg-primary/10 transition-colors">{q}</button>
+                    ].map((q) => (
+                      <button
+                        key={q}
+                        onClick={() => {
+                          setChatInput(q);
+                        }}
+                        className="text-[10px] border border-primary/30 rounded-full px-3 py-1 text-primary hover:bg-primary/10 transition-colors"
+                      >
+                        {q}
+                      </button>
                     ))}
                   </div>
                 </div>
               ) : (
                 chatMessages.map((msg, idx) => (
-                  <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                    <div className={`text-xs px-3 py-2 rounded-2xl max-w-[85%] leading-relaxed ${
-                      msg.role === "user" 
-                        ? "bg-primary text-primary-foreground rounded-tr-sm" 
-                        : "bg-muted text-foreground rounded-tl-sm"
-                    }`}>
+                  <div
+                    key={idx}
+                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                  >
+                    <div
+                      className={`text-xs px-3 py-2 rounded-2xl max-w-[85%] leading-relaxed ${
+                        msg.role === "user"
+                          ? "bg-primary text-primary-foreground rounded-tr-sm"
+                          : "bg-muted text-foreground rounded-tl-sm"
+                      }`}
+                    >
                       {msg.text}
                     </div>
                   </div>
@@ -237,8 +271,6 @@ export default function DetailedInsight() {
               </button>
             </form>
           </GlowCard>
-
-
         </div>
       ) : null}
     </AppShell>

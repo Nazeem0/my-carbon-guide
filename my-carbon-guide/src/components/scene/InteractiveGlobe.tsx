@@ -15,21 +15,25 @@ export function InteractiveGlobe({ step }: { step: number }) {
       if (hovered) {
         globeRef.current.rotation.y += 0.002;
       }
-      
+
       // Animate scale/position based on step
       const targetScale = step === 2 ? 1.2 : 1;
       globeRef.current.scale.setScalar(
-        THREE.MathUtils.lerp(globeRef.current.scale.x, targetScale, 0.05)
+        THREE.MathUtils.lerp(globeRef.current.scale.x, targetScale, 0.05),
       );
-      
+
       const targetZ = step === 2 ? -5 : -8;
-      globeRef.current.position.z = THREE.MathUtils.lerp(globeRef.current.position.z, targetZ, 0.05);
+      globeRef.current.position.z = THREE.MathUtils.lerp(
+        globeRef.current.position.z,
+        targetZ,
+        0.05,
+      );
     }
   });
 
   return (
-    <mesh 
-      ref={globeRef} 
+    <mesh
+      ref={globeRef}
       position={[0, 0, -8]}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}

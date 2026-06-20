@@ -16,9 +16,10 @@ export default function LeaderboardPage() {
   const { t } = useLanguage();
   const [scope, setScope] = useState<"Global" | "City">("Global");
 
-  const filteredLeaders = scope === "City" && profile?.city 
-    ? leaders.filter(l => l.city.toLowerCase() === profile.city.toLowerCase())
-    : leaders;
+  const filteredLeaders =
+    scope === "City" && profile?.city
+      ? leaders.filter((l) => l.city.toLowerCase() === profile.city.toLowerCase())
+      : leaders;
 
   return (
     <AppShell>
@@ -26,7 +27,11 @@ export default function LeaderboardPage() {
       <p className="text-sm text-muted-foreground">{t("leaderboard.subtitle")}</p>
 
       <div className="mt-4 flex items-center justify-between gap-3">
-        <GlowCard className="glass-card flex flex-1 rounded-full p-1" enableStars={false} particleCount={0}>
+        <GlowCard
+          className="glass-card flex flex-1 rounded-full p-1"
+          enableStars={false}
+          particleCount={0}
+        >
           {(["Today", "Weekly", "Monthly"] as const).map((p) => (
             <button
               key={p}
@@ -39,7 +44,11 @@ export default function LeaderboardPage() {
             </button>
           ))}
         </GlowCard>
-        <GlowCard className="glass-card flex rounded-full p-1" enableStars={false} particleCount={0}>
+        <GlowCard
+          className="glass-card flex rounded-full p-1"
+          enableStars={false}
+          particleCount={0}
+        >
           {(["Global", "City"] as const).map((s) => (
             <button
               key={s}
@@ -55,30 +64,66 @@ export default function LeaderboardPage() {
       </div>
 
       <div className="mt-6">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 px-2">{t("leaderboard.yourRank")}</h2>
+        <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 px-2">
+          {t("leaderboard.yourRank")}
+        </h2>
         {myEntry ? (
-          <LeaderboardRow rank={myEntry.rank} name={myEntry.name} score={myEntry.todayKg} trend="up" me />
+          <LeaderboardRow
+            rank={myEntry.rank}
+            name={myEntry.name}
+            score={myEntry.todayKg}
+            trend="up"
+            me
+          />
         ) : profile ? (
-          <LeaderboardRow rank={profile.rank} name={profile.name} score={profile.todayKg} trend="up" me />
-          ) : (
-            <GlowCard className="glass-card animate-pulse h-16 rounded-2xl w-full" enableStars={false} particleCount={0} />
-          )}
-        </div>
+          <LeaderboardRow
+            rank={profile.rank}
+            name={profile.name}
+            score={profile.todayKg}
+            trend="up"
+            me
+          />
+        ) : (
+          <GlowCard
+            className="glass-card animate-pulse h-16 rounded-2xl w-full"
+            enableStars={false}
+            particleCount={0}
+          />
+        )}
+      </div>
 
-        <div className="mt-6">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 px-2">{t("leaderboard.topWarriors")}</h2>
-          {loading ? (
-            <div className="space-y-2">
-              {[1, 2, 3, 4, 5].map(i => <GlowCard key={i} className="glass-card animate-pulse h-16 rounded-2xl w-full" enableStars={false} particleCount={0} />)}
+      <div className="mt-6">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 px-2">
+          {t("leaderboard.topWarriors")}
+        </h2>
+        {loading ? (
+          <div className="space-y-2">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <GlowCard
+                key={i}
+                className="glass-card animate-pulse h-16 rounded-2xl w-full"
+                enableStars={false}
+                particleCount={0}
+              />
+            ))}
           </div>
         ) : filteredLeaders.length > 0 ? (
           <div className="space-y-2">
             {filteredLeaders.map((u, i) => (
-              <LeaderboardRow key={u.uid} rank={i + 1} name={u.name} score={u.todayKg} trend={i % 2 === 0 ? "up" : "down"} />
+              <LeaderboardRow
+                key={u.uid}
+                rank={i + 1}
+                name={u.name}
+                score={u.todayKg}
+                trend={i % 2 === 0 ? "up" : "down"}
+              />
             ))}
           </div>
         ) : (
-          <GlowCard className="glass-card text-center text-muted-foreground text-sm py-10 rounded-2xl" particleCount={6}>
+          <GlowCard
+            className="glass-card text-center text-muted-foreground text-sm py-10 rounded-2xl"
+            particleCount={6}
+          >
             {t("leaderboard.empty")}
           </GlowCard>
         )}

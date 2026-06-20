@@ -8,7 +8,7 @@ const firebaseConfig = {
   projectId: "my-carbon-guide",
   storageBucket: "my-carbon-guide.firebasestorage.app",
   messagingSenderId: "1088753562033",
-  appId: "1:1088753562033:web:fbd03d848f9a80752f4d90"
+  appId: "1:1088753562033:web:fbd03d848f9a80752f4d90",
 };
 
 // Initialize Firebase

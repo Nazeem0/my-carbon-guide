@@ -13,7 +13,9 @@ export function InsightCard({ text }: { text: string }) {
           <Lightbulb size={20} />
         </div>
         <div>
-          <div className="text-xs font-semibold uppercase tracking-wider opacity-80">AI Insight</div>
+          <div className="text-xs font-semibold uppercase tracking-wider opacity-80">
+            AI Insight
+          </div>
           <p className="mt-1 text-sm leading-relaxed">{text}</p>
         </div>
       </div>

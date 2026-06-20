@@ -3,8 +3,15 @@ import { AppShell } from "@/components/ecolog/AppShell";
 import { GlowCard } from "@/components/ecolog/GlowCard";
 import { WeeklySummary } from "@/components/ui/WeeklySummary";
 import {
-  LineChart, Line, XAxis, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend,
+  LineChart,
+  Line,
+  XAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
 } from "recharts";
 import { useActivities } from "@/hooks/useActivities";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -30,19 +37,77 @@ const COLORS = ["#1D9E75", "#F59E0B", "#3B82F6", "#EF4444"];
 const CATS = ["Transport", "Food", "Energy", "Shopping"];
 
 const diffClass = (d: "Easy" | "Medium" | "Hard") =>
-  d === "Easy" ? "bg-primary/15 text-primary"
-    : d === "Medium" ? "bg-accent/20 text-accent-foreground"
-    : "bg-destructive/15 text-destructive";
+  d === "Easy"
+    ? "bg-primary/15 text-primary"
+    : d === "Medium"
+      ? "bg-accent/20 text-accent-foreground"
+      : "bg-destructive/15 text-destructive";
 
 const STATIC_PLAN: RoadmapAction[] = [
-  { week: 1, actionKey: "plan.action.1", category: "transport", saving_kg_month: 45, difficulty: "Easy", tipKey: "plan.tip.1" },
-  { week: 1, actionKey: "plan.action.2", category: "food", saving_kg_month: 12, difficulty: "Easy", tipKey: "plan.tip.2" },
-  { week: 2, actionKey: "plan.action.3", category: "energy", saving_kg_month: 18, difficulty: "Easy", tipKey: "plan.tip.3" },
-  { week: 2, actionKey: "plan.action.4", category: "shopping", saving_kg_month: 25, difficulty: "Medium", tipKey: "plan.tip.4" },
-  { week: 3, actionKey: "plan.action.5", category: "transport", saving_kg_month: 30, difficulty: "Easy", tipKey: "plan.tip.5" },
-  { week: 3, actionKey: "plan.action.6", category: "food", saving_kg_month: 15, difficulty: "Medium", tipKey: "plan.tip.6" },
-  { week: 4, actionKey: "plan.action.7", category: "energy", saving_kg_month: 22, difficulty: "Hard", tipKey: "plan.tip.7" },
-  { week: 4, actionKey: "plan.action.8", category: "shopping", saving_kg_month: 8, difficulty: "Easy", tipKey: "plan.tip.8" },
+  {
+    week: 1,
+    actionKey: "plan.action.1",
+    category: "transport",
+    saving_kg_month: 45,
+    difficulty: "Easy",
+    tipKey: "plan.tip.1",
+  },
+  {
+    week: 1,
+    actionKey: "plan.action.2",
+    category: "food",
+    saving_kg_month: 12,
+    difficulty: "Easy",
+    tipKey: "plan.tip.2",
+  },
+  {
+    week: 2,
+    actionKey: "plan.action.3",
+    category: "energy",
+    saving_kg_month: 18,
+    difficulty: "Easy",
+    tipKey: "plan.tip.3",
+  },
+  {
+    week: 2,
+    actionKey: "plan.action.4",
+    category: "shopping",
+    saving_kg_month: 25,
+    difficulty: "Medium",
+    tipKey: "plan.tip.4",
+  },
+  {
+    week: 3,
+    actionKey: "plan.action.5",
+    category: "transport",
+    saving_kg_month: 30,
+    difficulty: "Easy",
+    tipKey: "plan.tip.5",
+  },
+  {
+    week: 3,
+    actionKey: "plan.action.6",
+    category: "food",
+    saving_kg_month: 15,
+    difficulty: "Medium",
+    tipKey: "plan.tip.6",
+  },
+  {
+    week: 4,
+    actionKey: "plan.action.7",
+    category: "energy",
+    saving_kg_month: 22,
+    difficulty: "Hard",
+    tipKey: "plan.tip.7",
+  },
+  {
+    week: 4,
+    actionKey: "plan.action.8",
+    category: "shopping",
+    saving_kg_month: 8,
+    difficulty: "Easy",
+    tipKey: "plan.tip.8",
+  },
 ];
 
 export default function Insights() {
@@ -58,7 +123,6 @@ export default function Insights() {
   const [roadmapError, setRoadmapError] = useState("");
   const { language, t } = useLanguage();
 
-
   // ── Real 30-day trend from activities ──
   const monthlyTrend = useMemo(() => {
     const days: string[] = [];
@@ -68,11 +132,11 @@ export default function Insights() {
       d.setDate(d.getDate() - i);
       const dateStr = d.toDateString();
       const dateLabel = `${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-      
+
       const total = activities
-        .filter(a => new Date(a.timestamp).toDateString() === dateStr)
+        .filter((a) => new Date(a.timestamp).toDateString() === dateStr)
         .reduce((s, a) => s + a.co2_kg, 0);
-        
+
       trend.push({ date: dateLabel, kg: parseFloat(total.toFixed(2)) });
     }
     return trend;
@@ -81,9 +145,11 @@ export default function Insights() {
   // ── Real category breakdown from TODAY's activities ──
   const categoryBreakdown = useMemo(() => {
     const today = new Date().toDateString();
-    const todayActivities = activities.filter(a => new Date(a.timestamp).toDateString() === today);
+    const todayActivities = activities.filter(
+      (a) => new Date(a.timestamp).toDateString() === today,
+    );
     const totals: Record<string, number> = { Transport: 0, Food: 0, Energy: 0, Shopping: 0 };
-    todayActivities.forEach(a => {
+    todayActivities.forEach((a) => {
       let label = "Transport";
       for (const [cat, items] of Object.entries(EMISSION_FACTORS)) {
         if (a.activityKey in items) {
@@ -97,7 +163,7 @@ export default function Insights() {
       name,
       value: parseFloat((totals[name] ?? 0).toFixed(2)),
       color: COLORS[i],
-    })).filter(c => c.value > 0);
+    })).filter((c) => c.value > 0);
   }, [activities]);
 
   // ── Real 7-day data ──
@@ -108,18 +174,18 @@ export default function Insights() {
       d.setDate(d.getDate() - i);
       const dateStr = d.toDateString();
       const total = activities
-        .filter(a => new Date(a.timestamp).toDateString() === dateStr)
+        .filter((a) => new Date(a.timestamp).toDateString() === dateStr)
         .reduce((s, a) => s + a.co2_kg, 0);
       arr.push(parseFloat(total.toFixed(2)));
     }
     return arr;
   }, [activities]);
 
-  const bestDayKg = Math.min(...weeklyData.filter(v => v > 0));
+  const bestDayKg = Math.min(...weeklyData.filter((v) => v > 0));
   const bestDayLabel = bestDayKg === Infinity ? "N/A" : `${bestDayKg.toFixed(2)} kg`;
 
   const avgKg = useMemo(() => {
-    const vals = weeklyData.filter(v => v > 0);
+    const vals = weeklyData.filter((v) => v > 0);
     return vals.length ? parseFloat((vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2)) : 0;
   }, [weeklyData]);
 
@@ -132,7 +198,7 @@ export default function Insights() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           userId: user.uid,
@@ -155,7 +221,7 @@ export default function Insights() {
   };
 
   useEffect(() => {
-    if (profile && user && weeklyData.some(v => v > 0)) fetchSummary();
+    if (profile && user && weeklyData.some((v) => v > 0)) fetchSummary();
   }, [profile?.streak, language, user]);
 
   const handleGetRoadmap = () => {
@@ -190,7 +256,7 @@ export default function Insights() {
         <section className="mb-6">
           <h2 className="mb-3 text-sm font-bold text-white">{t("insights.generatingPlan")}</h2>
           <div className="space-y-3">
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="glass-card rounded-2xl p-4">
                 <Skeleton className="mb-3 h-3 w-16" />
                 <div className="flex gap-3">
@@ -218,12 +284,19 @@ export default function Insights() {
         <section className="mb-6">
           <h2 className="mb-3 text-sm font-bold text-white">{t("insights.reductionPlan")}</h2>
           <div className="space-y-3">
-            {[1, 2, 3, 4].map(week => {
-              const weekActions = roadmap.filter(a => a.week === week);
+            {[1, 2, 3, 4].map((week) => {
+              const weekActions = roadmap.filter((a) => a.week === week);
               if (weekActions.length === 0) return null;
               return (
-                <GlowCard key={week} className="glass-card rounded-2xl p-4" enableStars={false} particleCount={0}>
-                  <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">{t("plan.week")} {week}</h3>
+                <GlowCard
+                  key={week}
+                  className="glass-card rounded-2xl p-4"
+                  enableStars={false}
+                  particleCount={0}
+                >
+                  <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    {t("plan.week")} {week}
+                  </h3>
                   <div className="space-y-3">
                     {weekActions.map((action, idx) => (
                       <div key={idx} className="flex gap-3">
@@ -231,19 +304,25 @@ export default function Insights() {
                           {idx + 1}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold">{action.actionKey ? t(action.actionKey) : action.action}</p>
+                          <p className="text-sm font-semibold">
+                            {action.actionKey ? t(action.actionKey) : action.action}
+                          </p>
                           <div className="mt-1 flex flex-wrap items-center gap-1.5">
                             <span className="rounded-md bg-secondary px-2 py-0.5 text-[10px] font-medium capitalize text-muted-foreground">
                               {t(`category.${action.category}`)}
                             </span>
-                            <span className={`rounded-md px-2 py-0.5 text-[10px] font-medium ${diffClass(action.difficulty)}`}>
+                            <span
+                              className={`rounded-md px-2 py-0.5 text-[10px] font-medium ${diffClass(action.difficulty)}`}
+                            >
                               {t(`difficulty.${action.difficulty.toLowerCase()}`)}
                             </span>
                             <span className="text-[10px] font-medium text-primary">
                               -{action.saving_kg_month} {t("plan.savingPerMonth")}
                             </span>
                           </div>
-                          <p className="mt-1 text-[11px] text-muted-foreground">{action.tipKey ? t(action.tipKey) : action.india_tip}</p>
+                          <p className="mt-1 text-[11px] text-muted-foreground">
+                            {action.tipKey ? t(action.tipKey) : action.india_tip}
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -265,8 +344,21 @@ export default function Insights() {
           <div className="mt-2 h-44">
             <ResponsiveContainer>
               <LineChart data={monthlyTrend} margin={{ top: 8, right: 8, left: -28, bottom: 0 }}>
-                <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fontSize: 9, fill: "#D1FAE5" }} interval={4} />
-                <Tooltip contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 2px 12px rgba(0,0,0,.1)", fontSize: 12 }} />
+                <XAxis
+                  dataKey="date"
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fontSize: 9, fill: "#D1FAE5" }}
+                  interval={4}
+                />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: 12,
+                    border: "none",
+                    boxShadow: "0 2px 12px rgba(0,0,0,.1)",
+                    fontSize: 12,
+                  }}
+                />
                 <Line type="monotone" dataKey="kg" stroke="#1D9E75" strokeWidth={3} dot={false} />
               </LineChart>
             </ResponsiveContainer>
@@ -278,16 +370,29 @@ export default function Insights() {
       <GlowCard className="glass-card mt-5 rounded-3xl p-5" enableStars={false} particleCount={0}>
         <h2 className="text-sm font-bold text-white">{t("insights.categoryBreakdown")}</h2>
         {categoryBreakdown.length === 0 ? (
-          <p className="mt-4 text-center text-sm text-muted-foreground">{t("insights.breakdownEmpty")}</p>
+          <p className="mt-4 text-center text-sm text-muted-foreground">
+            {t("insights.breakdownEmpty")}
+          </p>
         ) : (
           <div className="h-56">
             <ResponsiveContainer>
               <PieChart>
-                <Pie data={categoryBreakdown} dataKey="value" innerRadius={50} outerRadius={75} paddingAngle={3}>
-                  {categoryBreakdown.map((c) => <Cell key={c.name} fill={c.color} />)}
+                <Pie
+                  data={categoryBreakdown}
+                  dataKey="value"
+                  innerRadius={50}
+                  outerRadius={75}
+                  paddingAngle={3}
+                >
+                  {categoryBreakdown.map((c) => (
+                    <Cell key={c.name} fill={c.color} />
+                  ))}
                 </Pie>
                 <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
-                <Tooltip formatter={(v) => `${v} kg`} contentStyle={{ borderRadius: 12, border: "none", fontSize: 12 }} />
+                <Tooltip
+                  formatter={(v) => `${v} kg`}
+                  contentStyle={{ borderRadius: 12, border: "none", fontSize: 12 }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -298,9 +403,17 @@ export default function Insights() {
       <section className="mt-5">
         <h2 className="mb-3 text-sm font-bold text-white">{t("insights.carbonStory")}</h2>
         <div className="grid grid-cols-3 gap-2">
-          <Stat label={t("insights.bestDay")} value={bestDayKg === Infinity ? "—" : bestDayKg.toFixed(1)} unit="kg" />
+          <Stat
+            label={t("insights.bestDay")}
+            value={bestDayKg === Infinity ? "—" : bestDayKg.toFixed(1)}
+            unit="kg"
+          />
           <Stat label={t("insights.streak")} value={streak.toString()} unit={t("dashboard.days")} />
-          <Stat label={t("insights.savedVsCity")} value={`${savedVsAvg > 0 ? "+" : ""}${savedVsAvg}`} unit="%" />
+          <Stat
+            label={t("insights.savedVsCity")}
+            value={`${savedVsAvg > 0 ? "+" : ""}${savedVsAvg}`}
+            unit="%"
+          />
         </div>
       </section>
     </AppShell>
@@ -309,7 +422,11 @@ export default function Insights() {
 
 function Stat({ label, value, unit }: { label: string; value: string; unit: string }) {
   return (
-    <GlowCard className="glass-card rounded-2xl p-3 text-center" enableStars={false} particleCount={0}>
+    <GlowCard
+      className="glass-card rounded-2xl p-3 text-center"
+      enableStars={false}
+      particleCount={0}
+    >
       <div className="text-lg font-extrabold text-white">{value}</div>
       <div className="text-[10px] font-semibold uppercase tracking-wider text-white/60">{unit}</div>
       <div className="mt-1 text-[11px] text-white/80">{label}</div>

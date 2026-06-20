@@ -20,7 +20,9 @@ export function useDarkMode() {
     }
     try {
       localStorage.setItem(DARK_KEY, String(dark));
-    } catch {}
+    } catch {
+      // ignore
+    }
   }, [dark]);
 
   return { dark, setDark };

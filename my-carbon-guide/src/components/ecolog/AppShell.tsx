@@ -3,14 +3,22 @@ import { Navbar } from "./Navbar";
 import Dock from "./Dock";
 import Lightfall from "@/components/Lightfall";
 
-export function AppShell({ children, hideNavbar = false, hideStreak = false }: { children: ReactNode; hideNavbar?: boolean; hideStreak?: boolean }) {
+export function AppShell({
+  children,
+  hideNavbar = false,
+  hideStreak = false,
+}: {
+  children: ReactNode;
+  hideNavbar?: boolean;
+  hideStreak?: boolean;
+}) {
   return (
     <div className="fixed inset-0 bg-[#0A1F17] flex justify-center overflow-hidden">
-        <div className="app-container w-full max-w-[430px] h-[100dvh] relative flex flex-col">
+      <div className="app-container w-full max-w-[430px] h-[100dvh] relative flex flex-col">
         <div className="relative z-10 flex flex-1 flex-col overflow-hidden text-foreground sm:rounded-[2.25rem] sm:shadow-2xl sm:mt-1">
-          <div style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
+          <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
             <Lightfall
-              colors={['#22C55E', '#34D399', '#A7F3D0']}
+              colors={["#22C55E", "#34D399", "#A7F3D0"]}
               backgroundColor="#000000"
               speed={0.3}
               streakCount={3}

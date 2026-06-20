@@ -6,7 +6,7 @@ export function Background() {
   const count = 500;
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const globeRef = useRef<THREE.Mesh>(null);
-  
+
   const tempObject = useMemo(() => new THREE.Object3D(), []);
 
   // Initialize random particle positions and velocities
@@ -17,12 +17,12 @@ export function Background() {
       const x = (Math.random() - 0.5) * 30;
       const y = (Math.random() - 0.5) * 30;
       const z = (Math.random() - 0.5) * 30;
-      
+
       // Slow drift speed (random velocity 0.001 - 0.005)
       const speed = 0.001 + Math.random() * 0.004;
       const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos((Math.random() * 2) - 1);
-      
+      const phi = Math.acos(Math.random() * 2 - 1);
+
       const vx = speed * Math.sin(phi) * Math.cos(theta);
       const vy = speed * Math.sin(phi) * Math.sin(theta);
       const vz = speed * Math.cos(phi);
@@ -64,7 +64,14 @@ export function Background() {
   return (
     <group>
       {/* 500 particle instanced mesh */}
-      <instancedMesh ref={meshRef} args={[null as any, null as any, count]}>
+      <instancedMesh
+        ref={meshRef}
+        args={[
+          undefined as unknown as THREE.BufferGeometry,
+          undefined as unknown as THREE.Material,
+          count,
+        ]}
+      >
         <sphereGeometry args={[0.025, 4, 4]} />
         <meshBasicMaterial color="#1D9E75" />
       </instancedMesh>
@@ -72,12 +79,7 @@ export function Background() {
       {/* Wireframe Earth globe */}
       <mesh ref={globeRef} position={[0, 0, -8]}>
         <sphereGeometry args={[6, 32, 32]} />
-        <meshBasicMaterial
-          wireframe
-          color="#1D9E75"
-          opacity={0.05}
-          transparent
-        />
+        <meshBasicMaterial wireframe color="#1D9E75" opacity={0.05} transparent />
       </mesh>
     </group>
   );

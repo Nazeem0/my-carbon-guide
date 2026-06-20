@@ -9,7 +9,12 @@ export function Navbar({ hideStreak = false }: { hideStreak?: boolean }) {
   const name = profile?.name || "User";
   const city = profile?.city || "";
   const streak = profile?.streak || 0;
-  const initials = name.split(" ").map((s) => s[0]).slice(0, 2).join("").toUpperCase();
+  const initials = name
+    .split(" ")
+    .map((s) => s[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
   return (
     <header className="z-40 flex items-center justify-between px-5 pt-[env(safe-area-inset-top,8px)] pb-2">

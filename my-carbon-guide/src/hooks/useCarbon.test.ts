@@ -33,20 +33,20 @@ describe("useCarbon Calculations & Logic", () => {
   test("getDailyTotal returns correct status at different levels", () => {
     // Under 60% of 2.0 goal (1.2kg) -> good
     const goodTotal = getDailyTotal([
-      { activityKey: "veg_meal", quantity: 1 } // 1.1kg -> 55%
+      { activityKey: "veg_meal", quantity: 1 }, // 1.1kg -> 55%
     ]);
     expect(goodTotal.status).toBe("good");
 
     // 60-85% of 2.0 goal (1.2kg - 1.7kg) -> warning
     const warningTotal = getDailyTotal([
       { activityKey: "veg_meal", quantity: 1 },
-      { activityKey: "car_petrol", quantity: 2 } // 1.1 + 0.348 = 1.448kg -> 72.4%
+      { activityKey: "car_petrol", quantity: 2 }, // 1.1 + 0.348 = 1.448kg -> 72.4%
     ]);
     expect(warningTotal.status).toBe("warning");
 
     // Over 85% of 2.0 goal (1.7kg+) -> danger
     const dangerTotal = getDailyTotal([
-      { activityKey: "nonveg_meal", quantity: 1 } // 6.9kg -> 345%
+      { activityKey: "nonveg_meal", quantity: 1 }, // 6.9kg -> 345%
     ]);
     expect(dangerTotal.status).toBe("danger");
   });

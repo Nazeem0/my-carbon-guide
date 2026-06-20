@@ -91,7 +91,7 @@ export function useCarbon() {
 
   const getDailyTotal = (
     activitiesArray: { activityKey: string; quantity: number }[],
-    goal = 2.0
+    goal = 2.0,
   ): DailyTotalResult => {
     let total_kg = 0;
     for (const item of activitiesArray) {

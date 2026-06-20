@@ -60,7 +60,7 @@ export function GlowCard({
     if (particlesInitialized.current || !cardRef.current) return;
     const { width, height } = cardRef.current.getBoundingClientRect();
     memoizedParticles.current = Array.from({ length: particleCount }, () =>
-      createParticleElement(Math.random() * width, Math.random() * height, glowColor)
+      createParticleElement(Math.random() * width, Math.random() * height, glowColor),
     );
     particlesInitialized.current = true;
   }, [particleCount, glowColor]);
@@ -94,7 +94,11 @@ export function GlowCard({
         cardRef.current.appendChild(clone);
         particlesRef.current.push(clone);
 
-        gsap.fromTo(clone, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(1.7)" });
+        gsap.fromTo(
+          clone,
+          { scale: 0, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(1.7)" },
+        );
         gsap.to(clone, {
           x: (Math.random() - 0.5) * 80,
           y: (Math.random() - 0.5) * 80,
@@ -124,7 +128,13 @@ export function GlowCard({
       isHoveredRef.current = true;
       animateParticles();
       if (enableTilt) {
-        gsap.to(element, { rotateX: 5, rotateY: 5, duration: 0.3, ease: "power2.out", transformPerspective: 1000 });
+        gsap.to(element, {
+          rotateX: 5,
+          rotateY: 5,
+          duration: 0.3,
+          ease: "power2.out",
+          transformPerspective: 1000,
+        });
       }
     };
 
@@ -156,12 +166,23 @@ export function GlowCard({
       if (enableTilt) {
         const rotateX = ((y - centerY) / centerY) * -8;
         const rotateY = ((x - centerX) / centerX) * 8;
-        gsap.to(element, { rotateX, rotateY, duration: 0.1, ease: "power2.out", transformPerspective: 1000 });
+        gsap.to(element, {
+          rotateX,
+          rotateY,
+          duration: 0.1,
+          ease: "power2.out",
+          transformPerspective: 1000,
+        });
       }
       if (enableMagnetism) {
         const magnetX = (x - centerX) * 0.05;
         const magnetY = (y - centerY) * 0.05;
-        magnetismAnimationRef.current = gsap.to(element, { x: magnetX, y: magnetY, duration: 0.3, ease: "power2.out" });
+        magnetismAnimationRef.current = gsap.to(element, {
+          x: magnetX,
+          y: magnetY,
+          duration: 0.3,
+          ease: "power2.out",
+        });
       }
     };
 
@@ -174,7 +195,7 @@ export function GlowCard({
         Math.hypot(x, y),
         Math.hypot(x - rect.width, y),
         Math.hypot(x, y - rect.height),
-        Math.hypot(x - rect.width, y - rect.height)
+        Math.hypot(x - rect.width, y - rect.height),
       );
       const ripple = document.createElement("div");
       ripple.style.cssText = `
@@ -189,7 +210,17 @@ export function GlowCard({
         z-index: 1000;
       `;
       element.appendChild(ripple);
-      gsap.fromTo(ripple, { scale: 0, opacity: 1 }, { scale: 1, opacity: 0, duration: 0.8, ease: "power2.out", onComplete: () => ripple.remove() });
+      gsap.fromTo(
+        ripple,
+        { scale: 0, opacity: 1 },
+        {
+          scale: 1,
+          opacity: 0,
+          duration: 0.8,
+          ease: "power2.out",
+          onComplete: () => ripple.remove(),
+        },
+      );
     };
 
     element.addEventListener("mouseenter", handleMouseEnter);

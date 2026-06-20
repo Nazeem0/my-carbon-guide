@@ -26,28 +26,70 @@ function PageLoader() {
 export function App() {
   return (
     <ErrorBoundary>
-    <AuthProvider>
-      <LanguageProvider>
-      <SyncProvider>
-        <BrowserRouter>
-        <Suspense fallback={<PageLoader />}>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Onboarding />} />
-          
-          {/* Protected Routes */}
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/insights" element={<ProtectedRoute><Insights /></ProtectedRoute>} />
-          <Route path="/leaderboard" element={<ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
-          <Route path="/log" element={<ProtectedRoute><LogPage /></ProtectedRoute>} />
-          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-          <Route path="/detailed-insight" element={<ProtectedRoute><DetailedInsight /></ProtectedRoute>} />
-        </Routes>
-        </Suspense>
-        </BrowserRouter>
-      </SyncProvider>
-      </LanguageProvider>
-    </AuthProvider>
+      <AuthProvider>
+        <LanguageProvider>
+          <SyncProvider>
+            <BrowserRouter>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  {/* Public Routes */}
+                  <Route path="/" element={<Onboarding />} />
+
+                  {/* Protected Routes */}
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <ProtectedRoute>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/insights"
+                    element={
+                      <ProtectedRoute>
+                        <Insights />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/leaderboard"
+                    element={
+                      <ProtectedRoute>
+                        <LeaderboardPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/log"
+                    element={
+                      <ProtectedRoute>
+                        <LogPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/profile"
+                    element={
+                      <ProtectedRoute>
+                        <ProfilePage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/detailed-insight"
+                    element={
+                      <ProtectedRoute>
+                        <DetailedInsight />
+                      </ProtectedRoute>
+                    }
+                  />
+                </Routes>
+              </Suspense>
+            </BrowserRouter>
+          </SyncProvider>
+        </LanguageProvider>
+      </AuthProvider>
     </ErrorBoundary>
   );
 }

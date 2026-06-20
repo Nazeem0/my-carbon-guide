@@ -17,11 +17,14 @@ export function WeeklySummary({
   avgKg,
   bestDay,
   streak,
-  onGetPlan
+  onGetPlan,
 }: WeeklySummaryProps) {
   const { t } = useLanguage();
   return (
-    <GlowCard className="glass-card rounded-2xl border-l-4 border-amber-500 border-t border-r border-b border-white/20 p-5 shadow-lg shadow-black/5" particleCount={10}>
+    <GlowCard
+      className="glass-card rounded-2xl border-l-4 border-amber-500 border-t border-r border-b border-white/20 p-5 shadow-lg shadow-black/5"
+      particleCount={10}
+    >
       {/* Title */}
       <div className="flex items-center gap-2 mb-3 relative z-10">
         <span className="text-lg font-bold">📊 {t("weeklySummary.title")}</span>
@@ -42,19 +45,39 @@ export function WeeklySummary({
 
       {/* Stat Pills */}
       <div className="grid grid-cols-3 gap-2.5 mb-5 relative z-10">
-        <GlowCard className="glass-card flex flex-col items-center justify-center rounded-xl py-2.5 text-center" particleCount={4} enableStars={true}>
+        <GlowCard
+          className="glass-card flex flex-col items-center justify-center rounded-xl py-2.5 text-center"
+          particleCount={4}
+          enableStars={true}
+        >
           <span className="text-sm font-extrabold text-foreground">{avgKg.toFixed(2)} kg</span>
-          <span className="text-[9px] uppercase tracking-wider text-muted-foreground mt-0.5">{t("weeklySummary.avgPerDay")}</span>
+          <span className="text-[9px] uppercase tracking-wider text-muted-foreground mt-0.5">
+            {t("weeklySummary.avgPerDay")}
+          </span>
         </GlowCard>
-        <GlowCard className="glass-card flex flex-col items-center justify-center rounded-xl py-2.5 text-center" particleCount={4} enableStars={true}>
-          <span className="text-sm font-extrabold text-foreground truncate max-w-full px-1">{bestDay}</span>
-          <span className="text-[9px] uppercase tracking-wider text-muted-foreground mt-0.5">{t("weeklySummary.bestDay")}</span>
+        <GlowCard
+          className="glass-card flex flex-col items-center justify-center rounded-xl py-2.5 text-center"
+          particleCount={4}
+          enableStars={true}
+        >
+          <span className="text-sm font-extrabold text-foreground truncate max-w-full px-1">
+            {bestDay}
+          </span>
+          <span className="text-[9px] uppercase tracking-wider text-muted-foreground mt-0.5">
+            {t("weeklySummary.bestDay")}
+          </span>
         </GlowCard>
-        <GlowCard className="glass-card flex flex-col items-center justify-center rounded-xl py-2.5 text-center" particleCount={4} enableStars={true}>
+        <GlowCard
+          className="glass-card flex flex-col items-center justify-center rounded-xl py-2.5 text-center"
+          particleCount={4}
+          enableStars={true}
+        >
           <span className="text-sm font-extrabold text-foreground flex items-center gap-0.5">
             <Trophy size={11} className="text-amber-500" /> {streak}d
           </span>
-          <span className="text-[9px] uppercase tracking-wider text-muted-foreground mt-0.5">{t("weeklySummary.streak")}</span>
+          <span className="text-[9px] uppercase tracking-wider text-muted-foreground mt-0.5">
+            {t("weeklySummary.streak")}
+          </span>
         </GlowCard>
       </div>
 

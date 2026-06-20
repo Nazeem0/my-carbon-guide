@@ -1,11 +1,30 @@
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "motion/react";
-import { Children, cloneElement, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  Children,
+  cloneElement,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Home, BarChart3, Plus, Trophy, User } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import "./Dock.css";
 
-function DockItem({ children, className = "", onClick, mouseX, spring, distance, magnification, baseItemSize, label, isActive }: {
+function DockItem({
+  children,
+  className = "",
+  onClick,
+  mouseX,
+  spring,
+  distance,
+  magnification,
+  baseItemSize,
+  label,
+  isActive,
+}: {
   children: ReactNode;
   className?: string;
   onClick?: () => void;
@@ -25,7 +44,11 @@ function DockItem({ children, className = "", onClick, mouseX, spring, distance,
     return val - rect.x - baseItemSize / 2;
   });
 
-  const targetSize = useTransform(mouseDistance, [-distance, 0, distance], [baseItemSize, magnification, baseItemSize]);
+  const targetSize = useTransform(
+    mouseDistance,
+    [-distance, 0, distance],
+    [baseItemSize, magnification, baseItemSize],
+  );
   const size = useSpring(targetSize, spring);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -52,14 +75,25 @@ function DockItem({ children, className = "", onClick, mouseX, spring, distance,
     >
       {Children.map(children, (child) =>
         child && typeof child === "object" && "type" in child
-          ? cloneElement(child as React.ReactElement<{ isHovered?: ReturnType<typeof useMotionValue> }>, { isHovered })
-          : child
+          ? cloneElement(
+              child as React.ReactElement<{ isHovered?: ReturnType<typeof useMotionValue> }>,
+              { isHovered },
+            )
+          : child,
       )}
     </motion.div>
   );
 }
 
-function DockLabel({ children, className = "", ...rest }: { children: ReactNode; className?: string; isHovered?: ReturnType<typeof useMotionValue> }) {
+function DockLabel({
+  children,
+  className = "",
+  ...rest
+}: {
+  children: ReactNode;
+  className?: string;
+  isHovered?: ReturnType<typeof useMotionValue>;
+}) {
   const { isHovered } = rest;
   const [isVisible, setIsVisible] = useState(false);
 
@@ -127,7 +161,7 @@ export default function Dock({
 
   const maxHeight = useMemo(
     () => Math.max(dockHeight, magnification + 30),
-    [magnification, dockHeight]
+    [magnification, dockHeight],
   );
   const heightRow = useTransform(isHovered, [0, 1], [panelHeight, maxHeight]);
   const height = useSpring(heightRow, spring);

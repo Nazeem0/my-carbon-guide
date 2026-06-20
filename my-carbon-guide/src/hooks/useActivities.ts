@@ -80,9 +80,7 @@ export function useActivities(dailyGoal = 2.0) {
         });
 
         const formatted =
-          calc.co2_kg >= 1.0
-            ? `${calc.co2_kg.toFixed(2)}kg`
-            : `${Math.round(calc.co2_kg * 1000)}g`;
+          calc.co2_kg >= 1.0 ? `${calc.co2_kg.toFixed(2)}kg` : `${Math.round(calc.co2_kg * 1000)}g`;
 
         showToast(`✅ Logged! +${formatted} CO₂ added 🌱`);
       } catch (error) {

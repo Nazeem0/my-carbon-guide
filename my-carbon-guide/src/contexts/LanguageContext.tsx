@@ -74,21 +74,29 @@ const EN: Record<string, string> = {
   "plan.action.1": "Switch to public transport for short commutes",
   "plan.tip.1": "Use metro or city buses instead of auto-rickshaws for daily office commutes",
   "plan.action.2": "Replace one meat meal per week with a plant-based option",
-  "plan.tip.2": "Try masala dosa, chole bhature, or paneer butter masala as filling vegetarian options",
+  "plan.tip.2":
+    "Try masala dosa, chole bhature, or paneer butter masala as filling vegetarian options",
   "plan.action.3": "Unplug electronics when not in use",
-  "plan.tip.3": "Switch off TV, laptop charger, and WiFi router at night — BESCOM bills drop noticeably",
+  "plan.tip.3":
+    "Switch off TV, laptop charger, and WiFi router at night — BESCOM bills drop noticeably",
   "plan.action.4": "Shop second-hand or upcycle instead of buying new",
-  "plan.tip.4": "Check OLX, Cashify, or local Sunday flea markets for refurbished electronics and furniture",
+  "plan.tip.4":
+    "Check OLX, Cashify, or local Sunday flea markets for refurbished electronics and furniture",
   "plan.action.5": "Walk or cycle for trips under 2 km",
-  "plan.tip.5": "Use a bicycle or simply walk for nearby errands like buying vegetables from the local sabzi mandi",
+  "plan.tip.5":
+    "Use a bicycle or simply walk for nearby errands like buying vegetables from the local sabzi mandi",
   "plan.action.6": "Reduce food waste by meal planning",
-  "plan.tip.6": "Plan weekly meals around seasonal Indian vegetables — they're cheaper and have lower carbon impact",
+  "plan.tip.6":
+    "Plan weekly meals around seasonal Indian vegetables — they're cheaper and have lower carbon impact",
   "plan.action.7": "Use energy-efficient appliances and LEDs",
-  "plan.tip.7": "Replace old ceiling fans with BEE 5-star rated ones and use LED bulbs throughout the house",
+  "plan.tip.7":
+    "Replace old ceiling fans with BEE 5-star rated ones and use LED bulbs throughout the house",
   "plan.action.8": "Say no to single-use plastics",
-  "plan.tip.8": "Carry a cloth bag for grocery shopping and refuse plastic straws at tea stalls and juice shops",
+  "plan.tip.8":
+    "Carry a cloth bag for grocery shopping and refuse plastic straws at tea stalls and juice shops",
   "weeklySummary.title": "This Week's Summary",
-  "weeklySummary.placeholder": "Your weekly carbon report is cooking. Keep logging activities to generate insights!",
+  "weeklySummary.placeholder":
+    "Your weekly carbon report is cooking. Keep logging activities to generate insights!",
   "weeklySummary.avgPerDay": "Avg/Day",
   "weeklySummary.bestDay": "Best Day",
   "weeklySummary.streak": "Streak",
@@ -138,7 +146,8 @@ const EN: Record<string, string> = {
   "detailedInsight.goBack": "Go Back",
   "detailedInsight.askEcoLogAI": "Ask EcoLog AI",
   "detailedInsight.chatPlaceholder": "How can I help you today?",
-  "detailedInsight.chatSubtext": "Ask me anything about your carbon footprint, tips to reduce emissions, or your trends.",
+  "detailedInsight.chatSubtext":
+    "Ask me anything about your carbon footprint, tips to reduce emissions, or your trends.",
   "detailedInsight.q1": "How can I reduce my footprint?",
   "detailedInsight.q2": "What's my biggest emission?",
   "detailedInsight.q3": "Tips for this week?",
@@ -264,13 +273,15 @@ const HI: Record<string, string> = {
   "plan.action.1": "छोटी दूरी के लिए सार्वजनिक परिवहन का उपयोग करें",
   "plan.tip.1": "दैनिक कार्यालय आवागमन के लिए ऑटो-रिक्शा के बजाय मेट्रो या सिटी बसों का उपयोग करें",
   "plan.action.2": "प्रति सप्ताह एक मांस भोजन को पौध-आधारित विकल्प से बदलें",
-  "plan.tip.2": "भरपूर शाकाहारी विकल्प के रूप में मसाला डोसा, छोले भटूरे, या पनीर बटर मसाला आज़माएं",
+  "plan.tip.2":
+    "भरपूर शाकाहारी विकल्प के रूप में मसाला डोसा, छोले भटूरे, या पनीर बटर मसाला आज़माएं",
   "plan.action.3": "उपयोग में न होने पर इलेक्ट्रॉनिक्स को अनप्लग करें",
   "plan.tip.3": "रात में टीवी, लैपटॉप चार्जर और वाईफाई राउटर बंद कर दें",
   "plan.action.4": "नया खरीदने के बजाय सेकंड-हैंड खरीदें या अपसाइकिल करें",
   "plan.tip.4": "नवीनीकृत इलेक्ट्रॉनिक्स और फर्नीचर के लिए OLX, Cashify, या स्थानीय बाजार देखें",
   "plan.action.5": "2 किमी से कम की यात्रा के लिए पैदल चलें या साइकिल चलाएं",
-  "plan.tip.5": "स्थानीय सब्जी मंडी से सब्जियां खरीदने जैसे निकट के कामों के लिए साइकिल या पैदल चलें",
+  "plan.tip.5":
+    "स्थानीय सब्जी मंडी से सब्जियां खरीदने जैसे निकट के कामों के लिए साइकिल या पैदल चलें",
   "plan.action.6": "भोजन योजना द्वारा भोजन की बर्बादी कम करें",
   "plan.tip.6": "मौसमी भारतीय सब्जियों के आसपास साप्ताहिक भोजन की योजना बनाएं",
   "plan.action.7": "ऊर्जा-कुशल उपकरणों और LED का उपयोग करें",
@@ -278,7 +289,8 @@ const HI: Record<string, string> = {
   "plan.action.8": "एकल-उपयोग प्लास्टिक को ना कहें",
   "plan.tip.8": "किराने की खरीदारी के लिए कपड़े का थैला ले जाएं और प्लास्टिक के स्ट्रॉ को मना करें",
   "weeklySummary.title": "इस सप्ताह का सारांश",
-  "weeklySummary.placeholder": "आपकी साप्ताहिक कार्बन रिपोर्ट तैयार हो रही है। अंतर्दृष्टि के लिए गतिविधियाँ लॉग करते रहें!",
+  "weeklySummary.placeholder":
+    "आपकी साप्ताहिक कार्बन रिपोर्ट तैयार हो रही है। अंतर्दृष्टि के लिए गतिविधियाँ लॉग करते रहें!",
   "weeklySummary.avgPerDay": "औसत/दिन",
   "weeklySummary.bestDay": "सर्वश्रेष्ठ दिन",
   "weeklySummary.streak": "लगातार",
@@ -328,7 +340,8 @@ const HI: Record<string, string> = {
   "detailedInsight.goBack": "वापस जाएं",
   "detailedInsight.askEcoLogAI": "EcoLog AI से पूछें",
   "detailedInsight.chatPlaceholder": "आज मैं आपकी कैसे मदद कर सकता हूं?",
-  "detailedInsight.chatSubtext": "अपने कार्बन पदचिह्न, उत्सर्जन कम करने के टिप्स, या अपने रुझानों के बारे में मुझसे कुछ भी पूछें।",
+  "detailedInsight.chatSubtext":
+    "अपने कार्बन पदचिह्न, उत्सर्जन कम करने के टिप्स, या अपने रुझानों के बारे में मुझसे कुछ भी पूछें।",
   "detailedInsight.q1": "मैं अपना कार्बन पदचिह्न कैसे कम कर सकता हूं?",
   "detailedInsight.q2": "मेरा सबसे बड़ा उत्सर्जन क्या है?",
   "detailedInsight.q3": "इस सप्ताह के लिए टिप्स?",
@@ -454,21 +467,26 @@ const KN: Record<string, string> = {
   "plan.action.1": "ಸಣ್ಣ ಪ್ರಯಾಣಕ್ಕೆ ಸಾರ್ವಜನಿಕ ಸಾರಿಗೆ ಬಳಸಿ",
   "plan.tip.1": "ದೈನಂದಿನ ಕಚೇರಿ ಪ್ರಯಾಣಕ್ಕೆ ಆಟೋ-ರಿಕ್ಷಾ ಬದಲು ಮೆಟ್ರೋ ಅಥವಾ ಸಿಟಿ ಬಸ್ ಬಳಸಿ",
   "plan.action.2": "ವಾರಕ್ಕೆ ಒಂದು ಮಾಂಸಾಹಾರವನ್ನು ಸಸ್ಯಾಹಾರಿ ಆಯ್ಕೆಯಿಂದ ಬದಲಿಸಿ",
-  "plan.tip.2": "ತುಂಬುವ ಸಸ್ಯಾಹಾರಿ ಆಯ್ಕೆಗಳಾಗಿ ಮಸಾಲೆ ದೋಸೆ, ಛೋಲೆ ಭಟೂರೆ, ಅಥವಾ ಪನೀರ್ ಬಟರ್ ಮಸಾಲಾ ಪ್ರಯತ್ನಿಸಿ",
+  "plan.tip.2":
+    "ತುಂಬುವ ಸಸ್ಯಾಹಾರಿ ಆಯ್ಕೆಗಳಾಗಿ ಮಸಾಲೆ ದೋಸೆ, ಛೋಲೆ ಭಟೂರೆ, ಅಥವಾ ಪನೀರ್ ಬಟರ್ ಮಸಾಲಾ ಪ್ರಯತ್ನಿಸಿ",
   "plan.action.3": "ಬಳಕೆಯಲ್ಲಿಲ್ಲದಾಗ ಎಲೆಕ್ಟ್ರಾನಿಕ್ಸ್ ಅನ್ಪ್ಲಗ್ ಮಾಡಿ",
   "plan.tip.3": "ರಾತ್ರಿಯಲ್ಲಿ ಟಿವಿ, ಲ್ಯಾಪ್ಟಾಪ್ ಚಾರ್ಜರ್ ಮತ್ತು ವೈಫೈ ರೌಟರ್ ಆಫ್ ಮಾಡಿ",
   "plan.action.4": "ಹೊಸದನ್ನು ಖರೀದಿಸುವ ಬದಲು ಸೆಕೆಂಡ್-ಹ್ಯಾಂಡ್ ಖರೀದಿಸಿ ಅಥವಾ ಅಪ್ಸೈಕಲ್ ಮಾಡಿ",
-  "plan.tip.4": "ನವೀಕರಿಸಿದ ಎಲೆಕ್ಟ್ರಾನಿಕ್ಸ್ ಮತ್ತು ಪೀಠೋಪಕರಣಗಳಿಗಾಗಿ OLX, Cashify, ಅಥವಾ ಸ್ಥಳೀಯ ಮಾರುಕಟ್ಟೆ ನೋಡಿ",
+  "plan.tip.4":
+    "ನವೀಕರಿಸಿದ ಎಲೆಕ್ಟ್ರಾನಿಕ್ಸ್ ಮತ್ತು ಪೀಠೋಪಕರಣಗಳಿಗಾಗಿ OLX, Cashify, ಅಥವಾ ಸ್ಥಳೀಯ ಮಾರುಕಟ್ಟೆ ನೋಡಿ",
   "plan.action.5": "2 ಕಿಮೀ ಗಿಂತ ಕಡಿಮೆ ಪ್ರಯಾಣಕ್ಕೆ ನಡೆಯಿರಿ ಅಥವಾ ಸೈಕಲ್ ತೆಗೆದುಕೊಳ್ಳಿ",
   "plan.tip.5": "ಸ್ಥಳೀಯ ತರಕಾರಿ ಮಾರುಕಟ್ಟೆಗೆ ಹೋಗುವಂತಹ ಹತ್ತಿರದ ಕೆಲಸಗಳಿಗೆ ಸೈಕಲ್ ಅಥವಾ ನಡಿಗೆ ಬಳಸಿ",
   "plan.action.6": "ಊಟದ ಯೋಜನೆಯಿಂದ ಆಹಾರ ವ್ಯರ್ಥ ಕಡಿಮೆ ಮಾಡಿ",
   "plan.tip.6": "ಋತುಮಾನದ ಭಾರತೀಯ ತರಕಾರಿಗಳ ಸುತ್ತ ವಾರದ ಊಟ ಯೋಜಿಸಿ",
   "plan.action.7": "ಶಕ್ತಿ-ದಕ್ಷ ಉಪಕರಣಗಳು ಮತ್ತು LED ಗಳನ್ನು ಬಳಸಿ",
-  "plan.tip.7": "ಹಳೆಯ ಸೀಲಿಂಗ್ ಫ್ಯಾನ್ಗಳನ್ನು BEE 5-ಸ್ಟಾರ್ ರೇಟೆಡ್ ನಿಂದ ಬದಲಿಸಿ ಮತ್ತು ಮನೆಯಾದ್ಯಂತ LED ಬಲ್ಬ್ ಬಳಸಿ",
+  "plan.tip.7":
+    "ಹಳೆಯ ಸೀಲಿಂಗ್ ಫ್ಯಾನ್ಗಳನ್ನು BEE 5-ಸ್ಟಾರ್ ರೇಟೆಡ್ ನಿಂದ ಬದಲಿಸಿ ಮತ್ತು ಮನೆಯಾದ್ಯಂತ LED ಬಲ್ಬ್ ಬಳಸಿ",
   "plan.action.8": "ಏಕ-ಬಳಕೆಯ ಪ್ಲಾಸ್ಟಿಕ್ಗೆ ನಾ ಹೇಳಿ",
-  "plan.tip.8": "ಕಿರಾಣಿ ಶಾಪಿಂಗ್ಗೆ ಬಟ್ಟೆಯ ಚೀಲ ತೆಗೆದುಕೊಂಡು ಹೋಗಿ ಮತ್ತು ಪ್ಲಾಸ್ಟಿಕ್ ಸ್ಟ್ರಾವನ್ನು ನಿರಾಕರಿಸಿ",
+  "plan.tip.8":
+    "ಕಿರಾಣಿ ಶಾಪಿಂಗ್ಗೆ ಬಟ್ಟೆಯ ಚೀಲ ತೆಗೆದುಕೊಂಡು ಹೋಗಿ ಮತ್ತು ಪ್ಲಾಸ್ಟಿಕ್ ಸ್ಟ್ರಾವನ್ನು ನಿರಾಕರಿಸಿ",
   "weeklySummary.title": "ಈ ವಾರದ ಸಾರಾಂಶ",
-  "weeklySummary.placeholder": "ನಿಮ್ಮ ಸಾಪ್ತಾಹಿಕ ಇಂಗಾಲ ವರದಿ ಸಿದ್ಧವಾಗುತ್ತಿದೆ. ಒಳನೋಟಗಳಿಗಾಗಿ ಚಟುವಟಿಕೆಗಳನ್ನು ಲಾಗ್ ಮಾಡುತ್ತಿರಿ!",
+  "weeklySummary.placeholder":
+    "ನಿಮ್ಮ ಸಾಪ್ತಾಹಿಕ ಇಂಗಾಲ ವರದಿ ಸಿದ್ಧವಾಗುತ್ತಿದೆ. ಒಳನೋಟಗಳಿಗಾಗಿ ಚಟುವಟಿಕೆಗಳನ್ನು ಲಾಗ್ ಮಾಡುತ್ತಿರಿ!",
   "weeklySummary.avgPerDay": "ಸರಾಸರಿ/ದಿನ",
   "weeklySummary.bestDay": "ಅತ್ಯುತ್ತಮ ದಿನ",
   "weeklySummary.streak": "ಸ್ಟ್ರೀಕ್",
@@ -518,7 +536,8 @@ const KN: Record<string, string> = {
   "detailedInsight.goBack": "ಹಿಂದಿರುಗಿ",
   "detailedInsight.askEcoLogAI": "EcoLog AI ಕೇಳಿ",
   "detailedInsight.chatPlaceholder": "ಇಂದು ನಾನು ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಬಹುದು?",
-  "detailedInsight.chatSubtext": "ನಿಮ್ಮ ಇಂಗಾಲದ ಹೆಜ್ಜೆಗುರುತು, ಹೊರಸೂಸುವಿಕೆ ಕಡಿಮೆ ಮಾಡುವ ಸಲಹೆಗಳು, ಅಥವಾ ನಿಮ್ಮ ಪ್ರವೃತ್ತಿಗಳ ಬಗ್ಗೆ ನನ್ನನ್ನು ಏನು ಬೇಕಾದರೂ ಕೇಳಿ.",
+  "detailedInsight.chatSubtext":
+    "ನಿಮ್ಮ ಇಂಗಾಲದ ಹೆಜ್ಜೆಗುರುತು, ಹೊರಸೂಸುವಿಕೆ ಕಡಿಮೆ ಮಾಡುವ ಸಲಹೆಗಳು, ಅಥವಾ ನಿಮ್ಮ ಪ್ರವೃತ್ತಿಗಳ ಬಗ್ಗೆ ನನ್ನನ್ನು ಏನು ಬೇಕಾದರೂ ಕೇಳಿ.",
   "detailedInsight.q1": "ನನ್ನ ಇಂಗಾಲದ ಹೆಜ್ಜೆಗುರುತನ್ನು ಹೇಗೆ ಕಡಿಮೆ ಮಾಡುವುದು?",
   "detailedInsight.q2": "ನನ್ನ ಅತಿದೊಡ್ಡ ಹೊರಸೂಸುವಿಕೆ ಯಾವುದು?",
   "detailedInsight.q3": "ಈ ವಾರಕ್ಕೆ ಸಲಹೆಗಳು?",
@@ -546,7 +565,8 @@ const KN: Record<string, string> = {
   "onboarding.welcome": "ಸುಸ್ವಾಗತ",
   "onboarding.tagline": "ನಿಮ್ಮ ಇಂಗಾಲವನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ. ನಿಮ್ಮ ಜಗತ್ತನ್ನು ಬದಲಿಸಿ.",
   "onboarding.step1.title": "ಟ್ರ್ಯಾಕ್ ಮಾಡಿ",
-  "onboarding.step1.body": "ನಿಮ್ಮ ದೈನಂದಿನ ಸಾರಿಗೆ, ಆಹಾರ, ಶಕ್ತಿ ಮತ್ತು ಶಾಪಿಂಗ್ ಅನ್ನು ಸೆಕೆಂಡುಗಳಲ್ಲಿ ಲಾಗ್ ಮಾಡಿ.",
+  "onboarding.step1.body":
+    "ನಿಮ್ಮ ದೈನಂದಿನ ಸಾರಿಗೆ, ಆಹಾರ, ಶಕ್ತಿ ಮತ್ತು ಶಾಪಿಂಗ್ ಅನ್ನು ಸೆಕೆಂಡುಗಳಲ್ಲಿ ಲಾಗ್ ಮಾಡಿ.",
   "onboarding.step2.title": "AI ಸಲಹೆ",
   "onboarding.step2.body": "ನಿಮ್ಮ ಜೀವನಕ್ಕೆ ಅನುಗುಣವಾದ ವೈಯಕ್ತಿಕ ಸಲಹೆಗಳು — ಸಾಮಾನ್ಯ ಸಲಹೆ ಅಲ್ಲ.",
   "onboarding.step3.title": "ಪೂರ್ಣಗೊಳಿಸಿ",
@@ -619,37 +639,43 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       try {
         setTranslations(JSON.parse(cached));
         return;
-      } catch {}
+      } catch {
+        // ignore invalid json
+      }
     }
 
     const texts = Object.values(EN);
-    import("firebase/auth").then(({ getAuth }) => {
-      const currentUser = getAuth().currentUser;
-      if (!currentUser) return;
-      return currentUser.getIdToken().then((token) => {
-        return fetch(`${API_BASE}/api/translate`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-          body: JSON.stringify({ texts, target: language }),
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.translations) {
-              const map: Record<string, string> = {};
-              const keys = Object.keys(EN);
-              keys.forEach((key, i) => {
-                map[key] = data.translations[i] ?? EN[key];
-              });
-              setTranslations(map);
-              localStorage.setItem(cacheKey, JSON.stringify(map));
-            }
+    import("firebase/auth")
+      .then(({ getAuth }) => {
+        const currentUser = getAuth().currentUser;
+        if (!currentUser) return;
+        return currentUser.getIdToken().then((token) => {
+          return fetch(`${API_BASE}/api/translate`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ texts, target: language }),
           })
-          .catch((err) => console.error("[LanguageContext] Translation fetch failed:", err));
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.translations) {
+                const map: Record<string, string> = {};
+                const keys = Object.keys(EN);
+                keys.forEach((key, i) => {
+                  map[key] = data.translations[i] ?? EN[key];
+                });
+                setTranslations(map);
+                localStorage.setItem(cacheKey, JSON.stringify(map));
+              }
+            })
+            .catch((err) => console.error("[LanguageContext] Translation fetch failed:", err));
+        });
+      })
+      .catch(() => {
+        // failed to init auth
       });
-    }).catch(() => {});
   }, [language]);
 
   const setLanguage = useCallback((lang: Language) => {
@@ -663,7 +689,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       const inline = language === "hi" ? HI : KN;
       return inline[key] ?? EN[key] ?? key;
     },
-    [language, translations]
+    [language, translations],
   );
 
   return (

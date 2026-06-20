@@ -11,10 +11,16 @@ export function ActivityTile({ a, onTap }: { a: Activity; onTap: () => void }) {
       particleCount={6}
       enableStars={true}
     >
-      <div className="grid h-10 w-10 place-items-center rounded-xl bg-secondary text-xl relative z-10">{a.emoji}</div>
-      <div className="text-sm font-semibold leading-tight relative z-10">{t(`activity.${a.id}`)}</div>
+      <div className="grid h-10 w-10 place-items-center rounded-xl bg-secondary text-xl relative z-10">
+        {a.emoji}
+      </div>
+      <div className="text-sm font-semibold leading-tight relative z-10">
+        {t(`activity.${a.id}`)}
+      </div>
       <div className="text-[11px] text-muted-foreground relative z-10">
-        {a.factor === 0 ? t("activity.zeroImpact") : `${a.factor}${t("unit.g")}/${t(`unit.${a.unit}`)}`}
+        {a.factor === 0
+          ? t("activity.zeroImpact")
+          : `${a.factor}${t("unit.g")}/${t(`unit.${a.unit}`)}`}
       </div>
     </GlowCard>
   );

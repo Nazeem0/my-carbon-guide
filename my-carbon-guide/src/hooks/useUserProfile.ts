@@ -53,7 +53,9 @@ function loadCache(): UserProfile | null {
 function saveCache(p: UserProfile) {
   try {
     localStorage.setItem(CACHE_KEY, JSON.stringify(p));
-  } catch {}
+  } catch {
+    /* noop */
+  }
 }
 
 export function useUserProfile() {

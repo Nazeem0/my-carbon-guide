@@ -15,7 +15,11 @@ export function LeaderboardRow({
   me?: boolean;
 }) {
   const { t } = useLanguage();
-  const initials = name.split(" ").map((s) => s[0]).slice(0, 2).join("");
+  const initials = name
+    .split(" ")
+    .map((s) => s[0])
+    .slice(0, 2)
+    .join("");
   const medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : null;
   return (
     <div
@@ -34,10 +38,17 @@ export function LeaderboardRow({
         {initials}
       </div>
       <div className="flex-1">
-        <div className="text-sm font-semibold">{name}{me && <span className="ml-2 text-xs text-primary">You</span>}</div>
-        <div className="text-xs text-muted-foreground">{score.toFixed(1)} {t("leaderboard.kgCO2")}</div>
+        <div className="text-sm font-semibold">
+          {name}
+          {me && <span className="ml-2 text-xs text-primary">You</span>}
+        </div>
+        <div className="text-xs text-muted-foreground">
+          {score.toFixed(1)} {t("leaderboard.kgCO2")}
+        </div>
       </div>
-      <div className={`flex items-center text-xs font-semibold ${trend === "up" ? "text-primary" : "text-destructive"}`}>
+      <div
+        className={`flex items-center text-xs font-semibold ${trend === "up" ? "text-primary" : "text-destructive"}`}
+      >
         {trend === "up" ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
       </div>
     </div>

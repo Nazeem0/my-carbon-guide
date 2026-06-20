@@ -169,12 +169,11 @@ html, body {
 @layer utilities {
   .input-field {
     width: 100%;
-    border-radius: 0.75rem;
-    border: 1px solid oklch(1 0 0 / 0.2);
-    background: oklch(1 0 0 / 0.15);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    padding: 0.625rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid oklch(1 0 0 / 0.1);
+    background: oklch(1 0 0 / 0.08);
+    /* Removed backdrop-blur here to vastly improve mobile scroll performance */
+    padding: 0.4rem 0.6rem;
     font-size: 0.875rem;
     font-weight: 500;
     color: #ffffff;
@@ -189,8 +188,8 @@ html, body {
 
   .glass {
     background: oklch(1 0 0 / 0.25);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border: 1px solid oklch(1 0 0 / 0.2);
     box-shadow: 0 8px 32px oklch(0 0 0 / 0.08);
   }
@@ -216,7 +215,6 @@ html, body {
   max-width: 430px;
   width: 100%;
   margin: 0 auto;
-  min-height: 100vh;
   position: relative;
   overflow: hidden;
 }
@@ -224,8 +222,8 @@ html, body {
 /* ── Glass card base ── */
 .glass-card {
   background: rgba(16, 60, 45, 0.55);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(167, 243, 208, 0.15);
   border-radius: 16px;
   color: #FFFFFF;

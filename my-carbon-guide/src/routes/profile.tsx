@@ -223,18 +223,18 @@ export default function ProfilePage() {
       {editOpen && (
         <div className="fixed inset-0 z-50 flex flex-col justify-end mx-auto max-w-[430px] bg-black/40 backdrop-blur-sm" onClick={() => setEditOpen(false)}>
           <div
-            className="mx-auto w-full max-w-[430px] rounded-3xl border border-white/20 bg-white/20 p-6 shadow-2xl backdrop-blur-xl dark:bg-white/10 mb-28"
+            className="mx-auto w-full max-w-[430px] rounded-3xl border border-white/20 bg-white/20 p-4 shadow-2xl backdrop-blur-xl dark:bg-white/10 mb-28"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/30" />
-            <div className="flex items-center justify-between mb-5">
+            <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/30" />
+            <div className="flex items-center justify-between mb-3">
               <h2 className="text-base font-bold">{t("settings.editProfile")}</h2>
               <button onClick={() => setEditOpen(false)} className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-muted-foreground hover:text-foreground transition-colors">
                 <X size={15} />
               </button>
             </div>
 
-            <div className="space-y-4 max-h-[60vh] overflow-y-auto scrollbar-none pr-1">
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto scrollbar-none pr-1">
               <Field label={t("profile.displayName")} icon={<User size={14} />}>
                 <input
                   type="text" value={editName} onChange={(e) => setEditName(e.target.value)}
@@ -298,7 +298,7 @@ export default function ProfilePage() {
             <button
               onClick={handleSaveProfile}
               disabled={!editName.trim() || !editCity.trim()}
-              className="mt-6 flex h-12 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elevated)] hover:opacity-90 transition-all active:scale-[0.98] disabled:opacity-50"
+              className="mt-4 flex h-10 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elevated)] hover:opacity-90 transition-all active:scale-[0.98] disabled:opacity-50"
             >
               {t("profile.save")}
             </button>

@@ -97,11 +97,11 @@ function DockIcon({ children, className = "" }: { children: ReactNode; className
 export default function Dock({
   className = "",
   spring = { mass: 0.4, stiffness: 100, damping: 20 },
-  magnification = 72,
-  distance = 130,
-  panelHeight = 80,
-  dockHeight = 220,
-  baseItemSize = 62,
+  magnification = 60,
+  distance = 110,
+  panelHeight = 65,
+  dockHeight = 180,
+  baseItemSize = 48,
 }: {
   className?: string;
   spring?: { mass: number; stiffness: number; damping: number };

@@ -86,13 +86,13 @@ export function ActivityBottomSheet({
       />
 
       {/* Sheet Container */}
-      <div className="fixed bottom-24 inset-x-0 z-50 mx-auto max-w-[430px] max-h-[85vh] bg-white/20 border border-white/20 rounded-[28px] shadow-[0_-8px_32px_rgba(0,0,0,0.1)] backdrop-blur-2xl dark:bg-white/10 flex flex-col min-h-0">
+      <div className="fixed bottom-24 inset-x-0 z-50 mx-auto max-w-[430px] max-h-[85vh] bg-white/20 border border-white/20 rounded-[28px] shadow-[0_-8px_32px_rgba(0,0,0,0.1)] backdrop-blur-xl dark:bg-white/10 flex flex-col min-h-0">
         
         {/* Drag Handle */}
-        <div className="shrink-0 mx-auto mt-4 h-1 w-12 rounded-full bg-white/30 mb-5 cursor-pointer" onClick={onClose} />
+        <div className="shrink-0 mx-auto mt-3 h-1 w-12 rounded-full bg-white/30 mb-3 cursor-pointer" onClick={onClose} />
 
         {/* Header */}
-        <div className="shrink-0 flex items-center justify-between mb-5 px-5">
+        <div className="shrink-0 flex items-center justify-between mb-3 px-5">
           <h2 className="text-lg font-bold text-foreground">
             {t("log.header").replace("{category}", t(`category.${category}`))}
           </h2>
@@ -105,9 +105,9 @@ export function ActivityBottomSheet({
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-5 pb-8">
+        <div className="flex-1 min-h-0 overflow-y-auto px-5 pb-4">
           {/* Category Tabs Inside Sheet */}
-          <div className="grid grid-cols-4 gap-1.5 p-1 rounded-xl bg-white/10 border border-white/20 mb-5 backdrop-blur-xl">
+          <div className="grid grid-cols-4 gap-1.5 p-1 rounded-xl bg-white/10 border border-white/20 mb-3 backdrop-blur-lg">
           {(Object.keys(EMISSION_FACTORS) as Array<keyof typeof EMISSION_FACTORS>).map((cat) => (
             <button
               key={cat}
@@ -132,13 +132,13 @@ export function ActivityBottomSheet({
             </label>
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="w-full h-12 rounded-xl bg-white/10 border border-white/20 px-3 text-sm font-semibold text-foreground focus:outline-none focus:border-primary cursor-pointer select-none backdrop-blur-xl flex items-center justify-between"
+              className="w-full h-9 rounded-xl bg-white/10 border border-white/20 px-3 text-sm font-semibold text-foreground focus:outline-none focus:border-primary cursor-pointer select-none flex items-center justify-between"
             >
               <span>{t(`activity.${selectedActivity}`)}</span>
               <ChevronDown size={16} className={`text-muted-foreground transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
             </button>
             {dropdownOpen && (
-              <div className="absolute z-50 mt-1 w-full rounded-xl bg-black/40 border border-white/10 shadow-lg overflow-hidden" style={{ backdropFilter: "blur(40px) saturate(180%)" }}>
+              <div className="absolute z-50 mt-1 w-full rounded-xl bg-black/40 border border-white/10 shadow-lg overflow-hidden backdrop-blur-xl">
                 <div className="max-h-48 overflow-y-auto scrollbar-none">
                   {Object.entries(categoryItems).map(([key]) => (
                     <button
@@ -169,7 +169,7 @@ export function ActivityBottomSheet({
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setQuantityStr((q) => String(Math.max(1, (Number(q) || 0) - 1)))}
-                className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/10 border border-white/20 text-xl font-bold text-foreground hover:bg-white/20 active:scale-95 backdrop-blur-xl"
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/10 border border-white/20 text-lg font-bold text-foreground hover:bg-white/20 active:scale-95"
               >
                 −
               </button>
@@ -180,11 +180,11 @@ export function ActivityBottomSheet({
                 onKeyDown={handleKeyDown}
                 inputMode="numeric"
                 enterKeyHint="done"
-                className="flex-1 h-12 rounded-xl bg-white/10 border border-white/20 text-center text-lg font-bold text-white focus:outline-none focus:border-primary backdrop-blur-xl"
+                className="flex-1 h-9 rounded-xl bg-white/10 border border-white/20 text-center text-sm font-bold text-white focus:outline-none focus:border-primary"
               />
               <button
                 onClick={() => setQuantityStr((q) => String((Number(q) || 0) + 1))}
-                className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/10 border border-white/20 text-xl font-bold text-foreground hover:bg-white/20 active:scale-95 backdrop-blur-xl"
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/10 border border-white/20 text-lg font-bold text-foreground hover:bg-white/20 active:scale-95"
               >
                 +
               </button>
@@ -192,12 +192,12 @@ export function ActivityBottomSheet({
           </div>
 
           {/* Live Preview Card */}
-          <div className="rounded-2xl bg-primary/10 border border-primary/20 p-4 text-center mt-6">
-            <span className="text-xs font-semibold text-muted-foreground block select-none">{t("log.calculatedImpact")}</span>
-            <span className="text-3xl font-extrabold text-primary block mt-1">
+          <div className="rounded-2xl bg-primary/10 border border-primary/20 p-2 text-center mt-3">
+            <span className="text-[10px] font-semibold text-muted-foreground block select-none">{t("log.calculatedImpact")}</span>
+            <span className="text-xl font-extrabold text-primary block mt-0.5">
               {liveCalc.co2_kg.toFixed(3)} {t("unit.kg")}
             </span>
-            <span className="text-xs font-medium text-muted-foreground block mt-1">
+            <span className="text-[10px] font-medium text-muted-foreground block mt-0.5">
               {getCarbonEquivalent(liveCalc.co2_kg)}
             </span>
           </div>
@@ -205,7 +205,7 @@ export function ActivityBottomSheet({
           {/* Submit Button */}
           <button
             onClick={handleLog}
-            className="w-full h-14 rounded-xl bg-primary text-sm font-bold text-white shadow-lg shadow-primary/20 hover:bg-[var(--primary-glow)] active:scale-[0.98] transition-all duration-200 mt-6"
+            className="w-full h-10 rounded-xl bg-primary text-sm font-bold text-white shadow-lg shadow-primary/20 hover:bg-[var(--primary-glow)] active:scale-[0.98] transition-all duration-200 mt-3"
           >
             {t("log.header").replace("{category}", t(`category.${category}`))}
           </button>

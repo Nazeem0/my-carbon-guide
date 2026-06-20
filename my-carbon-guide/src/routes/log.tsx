@@ -94,9 +94,9 @@ export default function LogPage() {
       <BottomSheet open={!!selected} onClose={() => setSelected(null)} title={selected ? t(`activity.${selected.id}`) : ""}>
         {selected && (
           <div>
-            <GlowCard className="rounded-2xl bg-secondary p-4 text-center" enableStars={false} particleCount={0}>
-              <div className="text-3xl relative z-10">{selected.emoji}</div>
-              <div className="mt-1 text-xs text-muted-foreground relative z-10">
+            <GlowCard className="rounded-2xl bg-secondary p-3 text-center" enableStars={false} particleCount={0}>
+              <div className="text-2xl relative z-10">{selected.emoji}</div>
+              <div className="mt-0.5 text-[10px] text-muted-foreground relative z-10">
                 {t("log.perUnit").replace("{unit}", t(`unit.${selected.unit}`))}
               </div>
             </GlowCard>
@@ -106,7 +106,7 @@ export default function LogPage() {
             <div className="mt-2 flex items-center gap-2">
               <button
                 onClick={() => setQtyStr((q) => String(Math.max(1, (Number(q) || 0) - 1)))}
-                className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-white/20 bg-white/20 backdrop-blur-xl text-xl dark:bg-white/10"
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-white/20 bg-white/20 text-lg dark:bg-white/10"
               >
                 −
               </button>
@@ -117,16 +117,16 @@ export default function LogPage() {
                 onKeyDown={handleKeyDown}
                 inputMode="numeric"
                 enterKeyHint="done"
-                className="h-12 w-full rounded-lg border border-white/20 bg-white/20 px-3 text-center text-lg font-bold text-white outline-none focus:border-primary backdrop-blur-xl dark:bg-white/10"
+                className="h-9 w-full rounded-lg border border-white/20 bg-white/20 px-3 text-center text-sm font-bold text-white outline-none focus:border-primary dark:bg-white/10"
               />
               <button
                 onClick={() => setQtyStr((q) => String((Number(q) || 0) + 1))}
-                className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-white/20 bg-white/20 backdrop-blur-xl text-xl dark:bg-white/10"
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-white/20 bg-white/20 text-lg dark:bg-white/10"
               >
                 +
               </button>
             </div>
-            <GlowCard className="mt-4 rounded-2xl bg-primary/10 p-3 text-center text-sm" enableStars={false} particleCount={0}>
+            <GlowCard className="mt-3 rounded-2xl bg-primary/10 p-2 text-center text-xs" enableStars={false} particleCount={0}>
               {t("log.totalImpact")}{" "}
               <span className="font-bold text-primary relative z-10">
                 {(selected.factor * qty) >= 1000
@@ -137,7 +137,7 @@ export default function LogPage() {
             </GlowCard>
             <button
               onClick={submit}
-              className="mt-4 h-14 w-full rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 active:scale-[0.98] transition-all"
+              className="mt-3 h-10 w-full rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 active:scale-[0.98] transition-all"
             >
               {t("log.logIt")}
             </button>

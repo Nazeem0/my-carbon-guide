@@ -38,14 +38,15 @@ export function ActivityBottomSheet({
   }, [categoryItems]);
 
   const [selectedActivity, setSelectedActivity] = useState(firstActivityKey);
-  const [quantity, setQuantity] = useState(1);
+  const [quantityStr, setQuantityStr] = useState<string>("1");
+  const quantity = Number(quantityStr) || 0;
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Sync selected activity when category changes
   useEffect(() => {
     setSelectedActivity(firstActivityKey);
-    setQuantity(1);
+    setQuantityStr("1");
   }, [category, firstActivityKey]);
 
   // Close dropdown on outside click
@@ -68,7 +69,7 @@ export function ActivityBottomSheet({
   if (!open) return null;
 
   const handleLog = () => {
-    onLog(selectedActivity, quantity);
+    onLog(selectedActivity, Math.max(1, quantity));
     onClose();
   };
 
@@ -167,22 +168,22 @@ export function ActivityBottomSheet({
             </label>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                onClick={() => setQuantityStr((q) => String(Math.max(1, (Number(q) || 0) - 1)))}
                 className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/10 border border-white/20 text-xl font-bold text-foreground hover:bg-white/20 active:scale-95 backdrop-blur-xl"
               >
                 −
               </button>
               <input
                 type="number"
-                value={quantity}
-                onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}
+                value={quantityStr}
+                onChange={(e) => setQuantityStr(e.target.value)}
                 onKeyDown={handleKeyDown}
                 inputMode="numeric"
                 enterKeyHint="done"
-                className="flex-1 h-12 rounded-xl bg-white/10 border border-white/20 text-center text-lg font-bold text-foreground focus:outline-none focus:border-primary backdrop-blur-xl"
+                className="flex-1 h-12 rounded-xl bg-white/10 border border-white/20 text-center text-lg font-bold text-white focus:outline-none focus:border-primary backdrop-blur-xl"
               />
               <button
-                onClick={() => setQuantity((q) => q + 1)}
+                onClick={() => setQuantityStr((q) => String((Number(q) || 0) + 1))}
                 className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/10 border border-white/20 text-xl font-bold text-foreground hover:bg-white/20 active:scale-95 backdrop-blur-xl"
               >
                 +

@@ -13,7 +13,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { EMISSION_FACTORS } from "@/data/emissionFactors";
 import { CITY_AVERAGES } from "@/hooks/useCarbon";
 import { API_BASE } from "@/lib/api";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface RoadmapAction {
   week: number;

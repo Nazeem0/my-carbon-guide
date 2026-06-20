@@ -6,7 +6,7 @@ import { Bell, Globe, LogOut, ChevronRight, Pencil, X, MapPin, GraduationCap, Us
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage, type Language } from "@/contexts/LanguageContext";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProfilePage() {
   const { profile, loading, updateGoal, updateProfile } = useUserProfile();

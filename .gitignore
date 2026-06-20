@@ -12,6 +12,7 @@ my-carbon-guide/.env.local
 # Firebase service account key (contains private key!)
 firebase-key.json
 serviceAccountKey.json
+deploy-key.json
 **/firebase-key.json
 **/*serviceAccount*.json
 **/*-adminsdk-*.json

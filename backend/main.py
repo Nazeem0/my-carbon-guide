@@ -29,7 +29,11 @@ from routes.translate import router as translate_router
 
 load_dotenv()
 
-CORS_ORIGIN = os.getenv("CORS_ORIGIN", "http://localhost:5173")
+CORS_ORIGINS = [
+    "http://localhost:5173",
+    "http://localhost:8000",
+    "https://ecolog-1088753562033.asia-south1.run.app"
+]
 
 app = FastAPI(
     title="Ecolog Backend",
@@ -42,10 +46,10 @@ app = FastAPI(
 # credentials and the usual methods/headers).
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[CORS_ORIGIN],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE"],
-    allow_headers=["Authorization", "Content-Type"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # ─── Routers ─────────────────────────────────────────────────────────────────

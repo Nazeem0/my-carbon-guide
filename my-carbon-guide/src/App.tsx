@@ -5,7 +5,7 @@ import { SyncProvider } from "./contexts/SyncProvider";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { Skeleton } from "./components/ui/Skeleton";
+import { Skeleton } from "./components/ui/skeleton";
 
 const Onboarding = lazy(() => import("./routes/index"));
 const Dashboard = lazy(() => import("./routes/dashboard"));

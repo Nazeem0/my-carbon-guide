@@ -20,7 +20,8 @@ export default function LogPage() {
   const [tab, setTab] = useState<"All" | Category>("All");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Activity | null>(null);
-  const [qty, setQty] = useState(1);
+  const [qtyStr, setQtyStr] = useState<string>("1");
+  const qty = Number(qtyStr) || 0;
 
   const list = useMemo(
     () =>
@@ -32,12 +33,12 @@ export default function LogPage() {
 
   const openSheet = (a: Activity) => {
     setSelected(a);
-    setQty(1);
+    setQtyStr("1");
   };
 
   const submit = () => {
     if (!selected) return;
-    addActivity(selected.id, qty);
+    addActivity(selected.id, Math.max(1, qty));
     setSelected(null);
   };
 
@@ -104,22 +105,22 @@ export default function LogPage() {
             </label>
             <div className="mt-2 flex items-center gap-2">
               <button
-                onClick={() => setQty((q) => Math.max(1, q - 1))}
+                onClick={() => setQtyStr((q) => String(Math.max(1, (Number(q) || 0) - 1)))}
                 className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-white/20 bg-white/20 backdrop-blur-xl text-xl dark:bg-white/10"
               >
                 −
               </button>
               <input
                 type="number"
-                value={qty}
-                onChange={(e) => setQty(Math.max(1, Number(e.target.value) || 1))}
+                value={qtyStr}
+                onChange={(e) => setQtyStr(e.target.value)}
                 onKeyDown={handleKeyDown}
                 inputMode="numeric"
                 enterKeyHint="done"
-                className="h-12 w-full rounded-lg border border-white/20 bg-white/20 px-3 text-center text-lg font-bold outline-none focus:border-primary backdrop-blur-xl dark:bg-white/10"
+                className="h-12 w-full rounded-lg border border-white/20 bg-white/20 px-3 text-center text-lg font-bold text-white outline-none focus:border-primary backdrop-blur-xl dark:bg-white/10"
               />
               <button
-                onClick={() => setQty((q) => q + 1)}
+                onClick={() => setQtyStr((q) => String((Number(q) || 0) + 1))}
                 className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-white/20 bg-white/20 backdrop-blur-xl text-xl dark:bg-white/10"
               >
                 +

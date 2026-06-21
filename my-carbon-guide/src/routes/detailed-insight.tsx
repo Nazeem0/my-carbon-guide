@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { API_BASE } from "@/lib/api";
+import { apiPost, ApiError } from "@/lib/api";
 
 interface InsightData {
   title: string;
@@ -40,6 +40,7 @@ export default function DetailedInsight() {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
+  const [chatError, setChatError] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { t, language } = useLanguage();
 
@@ -70,32 +71,16 @@ export default function DetailedInsight() {
           language,
         };
 
-        const token = await user.getIdToken();
-
-        const res = await fetch(`${API_BASE}/api/insights/detailed`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        });
-
-        if (!res.ok) {
-          let errorDetail = "Failed to generate insight";
-          try {
-            const errorData = await res.json();
-            errorDetail = errorData.detail || errorDetail;
-          } catch (e) {
-            // ignore
-          }
-          throw new Error(errorDetail);
-        }
-
-        const data = await res.json();
-        setInsightData(data);
+        const data = await apiPost<Record<string, unknown>>(
+          user,
+          "/api/insights/detailed",
+          payload,
+        );
+        setInsightData(data as InsightData);
       } catch (err: unknown) {
-        if (err instanceof Error) {
+        if (err instanceof ApiError && err.status === 429) {
+          setError("Daily AI insight limit reached — check back tomorrow!");
+        } else if (err instanceof Error) {
           setError(err.message);
         } else {
           setError(String(err));
@@ -117,6 +102,7 @@ export default function DetailedInsight() {
 
     setChatMessages(updatedHistory);
     setChatInput("");
+    setChatError("");
     setChatLoading(true);
 
     try {
@@ -128,24 +114,15 @@ export default function DetailedInsight() {
         language,
       };
 
-      const token = await user!.getIdToken();
-
-      const res = await fetch(`${API_BASE}/api/insights/chat`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) throw new Error("Chat failed");
-
-      const data = await res.json();
+      const data = await apiPost<{ reply: string }>(user!, "/api/insights/chat", payload);
       setChatMessages([...updatedHistory, { role: "model", text: data.reply }]);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
-      // Optional: show error toast here
+      if (err instanceof ApiError && err.status === 429) {
+        setChatError("Daily AI insight limit reached — try again later.");
+      } else {
+        setChatError(err instanceof Error ? err.message : "Chat request failed");
+      }
     } finally {
       setChatLoading(false);
     }
@@ -248,6 +225,13 @@ export default function DetailedInsight() {
                     <span className="animate-bounce inline-block">●</span>
                     <span className="animate-bounce inline-block delay-75">●</span>
                     <span className="animate-bounce inline-block delay-150">●</span>
+                  </div>
+                </div>
+              )}
+              {chatError && (
+                <div className="flex justify-center">
+                  <div className="text-xs px-3 py-1.5 rounded-full bg-destructive/10 text-destructive">
+                    {chatError}
                   </div>
                 </div>
               )}

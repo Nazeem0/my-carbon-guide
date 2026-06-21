@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { SyncProvider } from "./contexts/SyncProvider";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { ProfileProvider } from "./contexts/ProfileProvider";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Skeleton } from "./components/ui/skeleton";
@@ -29,6 +30,7 @@ export function App() {
       <AuthProvider>
         <LanguageProvider>
           <SyncProvider>
+            <ProfileProvider>
             <BrowserRouter>
               <Suspense fallback={<PageLoader />}>
                 <Routes>
@@ -87,6 +89,7 @@ export function App() {
                 </Routes>
               </Suspense>
             </BrowserRouter>
+            </ProfileProvider>
           </SyncProvider>
         </LanguageProvider>
       </AuthProvider>

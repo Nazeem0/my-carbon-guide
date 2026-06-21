@@ -19,7 +19,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EMISSION_FACTORS } from "@/data/emissionFactors";
 import { CITY_AVERAGES } from "@/hooks/useCarbon";
-import { API_BASE } from "@/lib/api";
+import { apiPost, ApiError } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface RoadmapAction {
@@ -34,7 +34,7 @@ interface RoadmapAction {
 }
 
 const COLORS = ["#1D9E75", "#F59E0B", "#3B82F6", "#EF4444"];
-const CATS = ["Transport", "Food", "Energy", "Shopping"];
+const CATEGORIES = ["Transport", "Food", "Energy", "Shopping"];
 
 const diffClass = (d: "Easy" | "Medium" | "Hard") =>
   d === "Easy"
@@ -113,7 +113,7 @@ const STATIC_PLAN: RoadmapAction[] = [
 export default function Insights() {
   const { user } = useAuth();
   const { profile } = useUserProfile();
-  const { activities } = useActivities(profile?.dailyGoalKg ?? 2.0);
+  const { activities } = useActivities(profile?.dailyGoalKg ?? 2.0, 30);
 
   const [weeklySummary, setWeeklySummary] = useState("");
   const [loadingSummary, setLoadingSummary] = useState(false);
@@ -142,6 +142,20 @@ export default function Insights() {
     return trend;
   }, [activities]);
 
+  // Evenly spaced tick labels for the 30-day chart (every ~5 days + last)
+  const tickDates = useMemo(() => {
+    if (monthlyTrend.length === 0) return [];
+    const step = Math.max(1, Math.floor(monthlyTrend.length / 6));
+    const ticks: string[] = [];
+    for (let i = 0; i < monthlyTrend.length; i += step) {
+      ticks.push(monthlyTrend[i].date);
+    }
+    if (ticks[ticks.length - 1] !== monthlyTrend[monthlyTrend.length - 1].date) {
+      ticks.push(monthlyTrend[monthlyTrend.length - 1].date);
+    }
+    return ticks;
+  }, [monthlyTrend]);
+
   // ── Real category breakdown from TODAY's activities ──
   const categoryBreakdown = useMemo(() => {
     const today = new Date().toDateString();
@@ -159,7 +173,7 @@ export default function Insights() {
       }
       totals[label] = (totals[label] ?? 0) + a.co2_kg;
     });
-    return CATS.map((name, i) => ({
+    return CATEGORIES.map((name, i) => ({
       name,
       value: parseFloat((totals[name] ?? 0).toFixed(2)),
       color: COLORS[i],
@@ -193,35 +207,25 @@ export default function Insights() {
     if (!profile || !user) return;
     setLoadingSummary(true);
     try {
-      const token = await user.getIdToken();
-      const res = await fetch(`${API_BASE}/api/insights/weekly`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          userId: user.uid,
-          userName: profile.name,
-          weeklyData,
-          bestDay: bestDayLabel,
-          streak: profile.streak,
-          language,
-        }),
+      const data = await apiPost<{ text: string }>(user, "/api/insights/weekly", {
+        userId: user.uid,
+        userName: profile.name,
+        language,
       });
-
-      if (!res.ok) throw new Error("Failed to generate weekly summary");
-      const data = await res.json();
       setWeeklySummary(data.text);
-    } catch {
-      setWeeklySummary("AI weekly summary unavailable.");
+    } catch (err: unknown) {
+      if (err instanceof ApiError && err.status === 429) {
+        setWeeklySummary("Daily AI insight limit reached — check back tomorrow!");
+      } else {
+        setWeeklySummary("AI weekly summary unavailable.");
+      }
     } finally {
       setLoadingSummary(false);
     }
   };
 
   useEffect(() => {
-    if (profile && user && weeklyData.some((v) => v > 0)) fetchSummary();
+    if (profile && user) fetchSummary();
   }, [profile?.streak, language, user]);
 
   const handleGetRoadmap = () => {
@@ -349,14 +353,18 @@ export default function Insights() {
                   tickLine={false}
                   axisLine={false}
                   tick={{ fontSize: 9, fill: "#D1FAE5" }}
-                  interval={4}
+                  ticks={tickDates}
+                  interval="preserveStartEnd"
                 />
                 <Tooltip
                   contentStyle={{
-                    borderRadius: 12,
+                    padding: "6px 10px",
+                    borderRadius: 8,
                     border: "none",
                     boxShadow: "0 2px 12px rgba(0,0,0,.1)",
                     fontSize: 12,
+                    minWidth: "unset",
+                    width: "fit-content",
                   }}
                 />
                 <Line type="monotone" dataKey="kg" stroke="#1D9E75" strokeWidth={3} dot={false} />

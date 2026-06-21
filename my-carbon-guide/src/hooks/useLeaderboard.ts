@@ -17,6 +17,7 @@ export function useLeaderboard(top = 30) {
   const { user } = useAuth();
   const [leaders, setLeaders] = useState<LeaderEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchLeaderboard = useCallback(async () => {
     if (!user) {
@@ -32,6 +33,7 @@ export function useLeaderboard(top = 30) {
     } catch (err) {
       console.error("Leaderboard error:", err);
       setLoading(false);
+      setError(err instanceof Error ? err.message : "Failed to fetch leaderboard");
     }
   }, [user, top]);
 
@@ -48,5 +50,5 @@ export function useLeaderboard(top = 30) {
 
   const myEntry = user ? leaders.find((l) => l.uid === user.uid) : null;
 
-  return { leaders, myEntry, loading };
+  return { leaders, myEntry, loading, error };
 }

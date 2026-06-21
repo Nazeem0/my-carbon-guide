@@ -12,7 +12,7 @@ from fastapi import WebSocket
 
 
 class ConnectionManager:
-    def __init__(self):
+    def __init__(self) -> None:
         # uid -> list of active WebSocket connections for that user
         self._connections: dict[str, list[WebSocket]] = {}
 

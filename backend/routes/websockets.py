@@ -22,6 +22,7 @@ from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
 from firebase_admin import auth as fb_auth
 
 from firebase_init import db
+from google.cloud.firestore_v1.base_query import FieldFilter
 from ws_manager import manager
 from utils import serialize_activity, WS_PING_INTERVAL
 
@@ -29,7 +30,7 @@ router = APIRouter()
 
 
 def _fetch_sync_state(uid: str) -> dict:
-    acts_snap = db.collection("activities").where("userId", "==", uid).stream()
+    acts_snap = db.collection("activities").where(filter=FieldFilter("userId", "==", uid)).stream()
     activities = [serialize_activity(doc) for doc in acts_snap]
     activities.sort(key=lambda a: a["timestamp"], reverse=True)
 

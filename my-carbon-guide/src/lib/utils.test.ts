@@ -8,3 +8,4 @@ describe("utils cn", () => {
     expect(cn("text-red-500", undefined, "text-lg")).toBe("text-red-500 text-lg");
   });
 });
+ 

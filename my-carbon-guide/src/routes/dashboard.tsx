@@ -11,7 +11,7 @@ import { Trophy, Sparkles, RefreshCw, TrendingDown } from "lucide-react";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { API_BASE } from "@/lib/api";
+import { apiPost, ApiError } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Dashboard() {
@@ -22,7 +22,7 @@ export default function Dashboard() {
 
   const dailyGoal = profile?.dailyGoalKg || 2.0;
   const { activities, loaded, addActivity, getDailyTotal, getTopActivity } =
-    useActivities(dailyGoal);
+    useActivities(dailyGoal, 30);
 
   const { t, language } = useLanguage();
   const [insight, setInsight] = useState("");
@@ -65,7 +65,8 @@ export default function Dashboard() {
   const arcX = (deg: number) => 60 + markerR * Math.cos(toRad(deg));
   const arcY = (deg: number) => 60 + markerR * Math.sin(toRad(deg));
 
-  const [mounted, setMounted] = useState(false);
+  const fetchedRef = useRef(false);
+const [mounted, setMounted] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 50);
     return () => clearTimeout(t);
@@ -107,10 +108,10 @@ export default function Dashboard() {
   const endMarkerX = arcX(markerAngle);
   const endMarkerY = arcY(markerAngle);
   const markerColor = useMemo(() => {
-    const p = Math.min(Math.max(rawPct, 0), 100);
-    if (p <= 50) return "#10b981";
-    if (p <= 80) return "#eab308";
-    if (p < 100) return "#f97316";
+    const pct = Math.min(Math.max(rawPct, 0), 100);
+    if (pct <= 50) return "#10b981";
+    if (pct <= 80) return "#eab308";
+    if (pct < 100) return "#f97316";
     return "#ef4444";
   }, [rawPct]);
 
@@ -119,17 +120,17 @@ export default function Dashboard() {
       y = "#eab308",
       o = "#f97316",
       r = "#ef4444";
-    const p = Math.min(Math.max(rawPct, 0), 100);
-    const arcProgress = (p / 100) * arcSweep;
+    const pct = Math.min(Math.max(rawPct, 0), 100);
+    const arcProgress = (pct / 100) * arcSweep;
     const g50 = 0.5 * arcSweep;
     const g80 = 0.8 * arcSweep;
-    if (p <= 0) return "transparent";
+    if (pct <= 0) return "transparent";
     const s = [`${g} 0deg`];
     if (arcProgress <= g50) {
       s.push(`${g} ${arcProgress}deg`, `transparent ${arcProgress}deg`);
     } else if (arcProgress <= g80) {
       s.push(`${g} ${g50}deg`, `${y} ${arcProgress}deg`, `transparent ${arcProgress}deg`);
-    } else if (p < 100) {
+    } else if (pct < 100) {
       s.push(
         `${g} ${g50}deg`,
         `${y} ${g80}deg`,
@@ -161,41 +162,40 @@ export default function Dashboard() {
       const weekTotal = weekLogs.reduce((sum, a) => sum + a.co2_kg, 0);
       const weeklyAvg = parseFloat((weekTotal / 7).toFixed(2));
 
-      const token = await user.getIdToken();
-      const res = await fetch(`${API_BASE}/api/insights/daily`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          userId: user.uid,
-          userName: profile.name,
-          city: profile.city,
-          todayKg,
-          weeklyAvg: weeklyAvg > 0 ? weeklyAvg : 1.34,
-          cityAvg: CITY_AVERAGES[profile.city] ?? CITY_AVERAGES.national,
-          topActivity: topLabel,
-          streak: profile.streak,
-          language,
-        }),
+      const data = await apiPost<{ text: string }>(user, "/api/insights/daily", {
+        userId: user.uid,
+        userName: profile.name,
+        city: profile.city,
+        todayKg,
+        weeklyAvg: weeklyAvg > 0 ? weeklyAvg : 1.34,
+        cityAvg: CITY_AVERAGES[profile.city] ?? CITY_AVERAGES.national,
+        topActivity: topLabel,
+        streak: profile.streak,
+        language,
       });
-
-      if (!res.ok) throw new Error("Failed to generate insight");
-      const data = await res.json();
       setInsight(data.text);
-    } catch {
-      setInsight("AI insight unavailable");
+    } catch (err: unknown) {
+      if (err instanceof ApiError && err.status === 429) {
+        setInsight("Daily AI insight limit reached — check back tomorrow!");
+      } else {
+        setInsight("AI insight unavailable");
+      }
     } finally {
       setLoadingInsight(false);
     }
   };
 
+  // Reset fetch guard when language changes so translated insight is fetched
   useEffect(() => {
-    if (profile && user) {
+    fetchedRef.current = false;
+  }, [language]);
+
+  useEffect(() => {
+    if (profile && user && !fetchedRef.current) {
+      fetchedRef.current = true;
       fetchInsight();
     }
-  }, [todayKg, profile, user, language]);
+  }, [profile?.streak, language, user]);
 
   const handleQuickLogClick = (cat: "transport" | "food" | "energy" | "shopping") => {
     setSelectedCategory(cat);

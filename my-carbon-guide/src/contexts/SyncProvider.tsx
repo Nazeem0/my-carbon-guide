@@ -11,14 +11,11 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    let cancelled = false;
+    const getFreshToken = () => user.getIdToken(/* forceRefresh */ true);
 
-    user.getIdToken().then((token) => {
-      if (!cancelled) connectSync(token);
-    });
+    connectSync(getFreshToken);
 
     return () => {
-      cancelled = true;
       disconnectSync();
     };
   }, [user]);

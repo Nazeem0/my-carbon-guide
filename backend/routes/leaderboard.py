@@ -34,8 +34,8 @@ def _fetch_leaderboard(uid: str) -> list:
             "isCurrentUser": doc.id == uid,
         })
 
-    for i, u in enumerate(users):
-        u["rank"] = i + 1
+    for i, user in enumerate(users):
+        user["rank"] = i + 1
 
     return users[:LEADERBOARD_LIMIT]
 

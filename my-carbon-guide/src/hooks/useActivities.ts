@@ -13,12 +13,13 @@ export interface LoggedActivity {
   timestamp: string;
 }
 
-export function useActivities(dailyGoal = 2.0) {
+export function useActivities(dailyGoal = 2.0, days?: number) {
   const { calculateCO2 } = useCarbon();
   const { user } = useAuth();
 
   const [activities, setActivities] = useState<LoggedActivity[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -29,15 +30,19 @@ export function useActivities(dailyGoal = 2.0) {
 
     let cancelled = false;
 
-    apiGet<LoggedActivity[]>(user, "/api/activities")
+    const path = days ? `/api/activities?days=${days}` : "/api/activities";
+    apiGet<LoggedActivity[]>(user, path)
       .then((data) => {
         if (cancelled) return;
         setActivities(data);
         setLoaded(true);
       })
-      .catch((error) => {
-        console.error("Error fetching activities:", error);
-        if (!cancelled) setLoaded(true);
+      .catch((err) => {
+        console.error("Error fetching activities:", err);
+        if (!cancelled) {
+          setLoaded(true);
+          setError(err instanceof Error ? err.message : "Failed to fetch activities");
+        }
       });
 
     const unsub = subscribeSync((msg) => {
@@ -120,5 +125,13 @@ export function useActivities(dailyGoal = 2.0) {
     );
   }, [activities]);
 
-  return { activities, loaded, addActivity, getDailyTotal, getTodayPercentage, getTopActivity };
+  return {
+    activities,
+    loaded,
+    error,
+    addActivity,
+    getDailyTotal,
+    getTodayPercentage,
+    getTopActivity,
+  };
 }

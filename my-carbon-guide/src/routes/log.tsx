@@ -93,8 +93,8 @@ export default function LogPage() {
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-3">
-          {list.map((a) => (
-            <ActivityTile key={a.id} a={a} onTap={() => openSheet(a)} />
+          {list.map((activity) => (
+            <ActivityTile key={activity.id} a={activity} onTap={() => openSheet(activity)} />
           ))}
         </div>
       </div>

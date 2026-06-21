@@ -6,25 +6,38 @@ export type SyncMessage =
   | { type: "PING" };
 
 type Listener = (msg: SyncMessage) => void;
+type TokenGetter = () => Promise<string>;
 
 let ws: WebSocket | null = null;
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 let reconnectAttempts = 0;
+let getToken: TokenGetter | null = null;
 const MAX_RECONNECT_DELAY = 30000;
 const listeners = new Set<Listener>();
 
-function scheduleReconnect(token: string) {
-  if (reconnectTimer) return;
+async function scheduleReconnect() {
+  if (reconnectTimer || !getToken) return;
   const delay = Math.min(1000 * 2 ** reconnectAttempts, MAX_RECONNECT_DELAY);
-  reconnectTimer = setTimeout(() => {
+  reconnectTimer = setTimeout(async () => {
     reconnectTimer = null;
     reconnectAttempts++;
-    connectSync(token);
+    await connectSync(getToken!);
   }, delay);
 }
 
-export function connectSync(token: string) {
+export async function connectSync(tokenGetter: TokenGetter) {
   if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+    return;
+  }
+
+  getToken = tokenGetter;
+
+  let token: string;
+  try {
+    token = await tokenGetter();
+  } catch {
+    // Token fetch failed (e.g. user signed out, network error) — retry with backoff
+    scheduleReconnect();
     return;
   }
 
@@ -43,7 +56,7 @@ export function connectSync(token: string) {
   ws.onclose = () => {
     ws = null;
     if (reconnectAttempts < 10) {
-      scheduleReconnect(token);
+      scheduleReconnect();
     }
   };
 
@@ -58,6 +71,7 @@ export function disconnectSync() {
     reconnectTimer = null;
   }
   reconnectAttempts = 0;
+  getToken = null;
   ws?.close();
   ws = null;
 }

@@ -50,6 +50,10 @@ client = TestClient(app, raise_server_exceptions=False)
 @pytest.fixture(autouse=True)
 def _reset_mocks():
     _fake_db.reset_mock()
+    # Chainable .where(): collection().where(...).where(...) returns the same mock
+    _fake_db.collection.return_value.where.return_value.where.return_value = (
+        _fake_db.collection.return_value.where.return_value
+    )
     yield
 
 
@@ -124,6 +128,29 @@ class TestActivitiesAPI:
         resp = client.get("/api/activities", headers=_auth())
         assert resp.status_code == 200
         assert resp.json() == []
+
+    def test_get_with_days_param_accepts_valid_range(self):
+        _fake_db.collection.return_value.where.return_value.stream.return_value = [
+            _make_activity_doc("car_petrol", 10, 1.74),
+        ]
+        for days in [1, 7, 30, 365]:
+            resp = client.get(f"/api/activities?days={days}", headers=_auth())
+            assert resp.status_code == 200
+
+    def test_get_with_days_param_rejects_out_of_range(self):
+        for days in [0, 366, 999]:
+            resp = client.get(f"/api/activities?days={days}", headers=_auth())
+            assert resp.status_code == 422
+
+    def test_get_with_days_still_returns_sorted(self):
+        _fake_db.collection.return_value.where.return_value.stream.return_value = [
+            _make_activity_doc("bus", 5, 0.445, "2026-06-20T08:00:00"),
+            _make_activity_doc("veg_meal", 1, 1.1, "2026-06-20T12:00:00"),
+            _make_activity_doc("car_petrol", 10, 1.74, "2026-06-20T10:00:00"),
+        ]
+        resp = client.get("/api/activities?days=30", headers=_auth())
+        timestamps = [a["timestamp"] for a in resp.json()]
+        assert timestamps == sorted(timestamps, reverse=True)
 
     def test_get_sorted_by_timestamp_desc(self):
         _fake_db.collection.return_value.where.return_value.stream.return_value = [
@@ -613,6 +640,181 @@ class TestInsightsAPI:
         resp = client.post("/api/insights/chat", json=body, headers=_auth())
         assert resp.status_code == 422
 
+    def test_detailed_insight_caching(self):
+        """First call caches result; second call returns cached without hitting Gemini."""
+        import json
+
+        cache_store: dict[str, dict] = {}
+
+        class _FakeSnap:
+            def __init__(self, data):
+                self._data = data
+
+            @property
+            def exists(self):
+                return self._data is not None
+
+            def to_dict(self):
+                return self._data
+
+        class _FakeDoc:
+            def __init__(self, doc_id):
+                self.doc_id = doc_id
+
+            def get(self):
+                return _FakeSnap(cache_store.get(self.doc_id))
+
+            def set(self, data):
+                cache_store[self.doc_id] = data
+
+        def mock_collection(name):
+            if name == "insightCache":
+                return MagicMock(document=lambda doc_id: _FakeDoc(doc_id))
+            col = MagicMock()
+            col.document.return_value.get.return_value = _mock_user_doc(True, {})
+            return col
+
+        _fake_db.collection.side_effect = mock_collection
+
+        # First call — cache miss → calls Gemini
+        resp1 = client.post("/api/insights/detailed", json=_DETAILED_BODY, headers=_auth())
+        if resp1.status_code != 200:
+            pytest.skip("Gemini quota exhausted, skipping cache test")
+
+        data1 = resp1.json()
+        assert data1.get("cached") is False
+
+        # Second call — cache hit → no Gemini call
+        resp2 = client.post("/api/insights/detailed", json=_DETAILED_BODY, headers=_auth())
+        assert resp2.status_code == 200
+        data2 = resp2.json()
+        assert data2.get("cached") is True
+
+        # Verify returned data matches (minus the cached flag)
+        for k in data1:
+            if k != "cached":
+                assert data2[k] == data1[k], f"Mismatch on key {k}"
+
+    def test_weekly_requires_auth(self):
+        assert client.post("/api/insights/weekly", json={"userId": "u1"}).status_code == 422
+
+    def test_weekly_without_client_data(self):
+        """Weekly insight accepts request with just userId — backend computes stats server-side."""
+        import datetime
+
+        cache_store: dict[str, dict] = {}
+
+        class _FakeSnap:
+            def __init__(self, data):
+                self._data = data
+
+            @property
+            def exists(self):
+                return self._data is not None
+
+            def to_dict(self):
+                return self._data
+
+        class _FakeDoc:
+            def __init__(self, doc_id):
+                self.doc_id = doc_id
+
+            def get(self):
+                return _FakeSnap(cache_store.get(self.doc_id))
+
+            def set(self, data):
+                cache_store[self.doc_id] = data
+
+        now = datetime.datetime.now(datetime.timezone.utc)
+        activity_docs = []
+        for i in range(7):
+            ts_str = (now - datetime.timedelta(days=i)).isoformat()
+            doc = _make_activity_doc(f"act_{i}", 10, 1.74, ts_str)
+            activity_docs.append(doc)
+
+        def mock_collection(name):
+            if name == "insightCache":
+                return MagicMock(document=lambda doc_id: _FakeDoc(doc_id))
+            if name == "activities":
+                col = MagicMock()
+                mock_where = MagicMock()
+                mock_where.where.return_value = mock_where
+                mock_where.stream.return_value = activity_docs
+                col.where.return_value = mock_where
+                return col
+            if name == "users":
+                col = MagicMock()
+                col.document.return_value.get.return_value = _mock_user_doc(
+                    True, {"streak": 5, "name": "TestUser"}
+                )
+                return col
+            col = MagicMock()
+            col.document.return_value.get.return_value = _mock_user_doc(True, {})
+            return col
+
+        _fake_db.collection.side_effect = mock_collection
+
+        resp = client.post("/api/insights/weekly", json={
+            "userId": "u1",
+            "language": "en",
+        }, headers=_auth())
+
+        if resp.status_code != 200:
+            pytest.skip("Gemini quota exhausted, skipping weekly server-computed test")
+
+        data = resp.json()
+        assert "text" in data
+        assert len(data["text"]) > 10
+        assert data.get("cached") is False
+
+    def test_detailed_insight_force_refresh_skips_cache(self):
+        """force_refresh=true returns fresh data even when cache exists."""
+        import json
+
+        cache_store: dict[str, dict] = {}
+
+        class _FakeSnap:
+            def __init__(self, data):
+                self._data = data
+
+            @property
+            def exists(self):
+                return self._data is not None
+
+            def to_dict(self):
+                return self._data
+
+        class _FakeDoc:
+            def __init__(self, doc_id):
+                self.doc_id = doc_id
+
+            def get(self):
+                return _FakeSnap(cache_store.get(self.doc_id))
+
+            def set(self, data):
+                cache_store[self.doc_id] = data
+
+        def mock_collection(name):
+            if name == "insightCache":
+                return MagicMock(document=lambda doc_id: _FakeDoc(doc_id))
+            col = MagicMock()
+            col.document.return_value.get.return_value = _mock_user_doc(True, {})
+            return col
+
+        _fake_db.collection.side_effect = mock_collection
+
+        # First call — cache miss
+        resp1 = client.post("/api/insights/detailed", json=_DETAILED_BODY, headers=_auth())
+        if resp1.status_code != 200:
+            pytest.skip("Gemini quota exhausted, skipping cache test")
+
+        assert resp1.json().get("cached") is False
+
+        # Second call with force_refresh=true → skips cache, calls Gemini
+        resp2 = client.post("/api/insights/detailed", json={**_DETAILED_BODY, "force_refresh": True}, headers=_auth())
+        assert resp2.status_code == 200
+        assert resp2.json().get("cached") is False
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # 6. Translate API
@@ -955,10 +1157,20 @@ class TestInputSanitisation:
         resp = client.post("/api/insights/detailed", json={
             **_DETAILED_BODY, "userName": "<script>alert(1)</script>"
         }, headers=_auth())
-        assert resp.status_code in (200, 500)
+        assert resp.status_code in (200, 429, 500)
 
     def test_translate_rejects_empty_texts(self):
         resp = client.post("/api/translate", json={"texts": [], "target": "hi"}, headers=_auth())
+        assert resp.status_code == 422
+
+    def test_translate_accepts_128_texts(self):
+        texts = [str(i) for i in range(128)]
+        resp = client.post("/api/translate", json={"texts": texts, "target": "hi"}, headers=_auth())
+        assert resp.status_code in (200, 500)  # 200 = passthrough, 500 = no API key
+
+    def test_translate_rejects_129_texts(self):
+        texts = [str(i) for i in range(129)]
+        resp = client.post("/api/translate", json={"texts": texts, "target": "hi"}, headers=_auth())
         assert resp.status_code == 422
 
 

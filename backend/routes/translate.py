@@ -1,3 +1,10 @@
+"""
+Google Cloud Translation API wrapper.
+
+REST:
+  POST /api/translate   → translates an array of English texts to the target language
+"""
+
 import os
 import logging
 from typing import Annotated
@@ -14,7 +21,7 @@ router = APIRouter()
 
 
 class TranslateRequest(BaseModel):
-    texts: list[str] = Field(..., min_length=1, max_length=50)
+    texts: list[str] = Field(..., min_length=1, max_length=128)
     target: str = Field(..., pattern=r"^(en|hi|kn)$")
 
 
@@ -23,6 +30,10 @@ async def translate_text(
     req: TranslateRequest,
     token: Annotated[dict, Depends(verify_token)],
 ):
+    """Translate an array of English strings to the requested language.
+
+    Returns {"translations": [...]}. Returns input as-is when target is "en".
+    """
     api_key = os.getenv("GOOGLE_TRANSLATE_API_KEY")
     if not api_key:
         raise HTTPException(status_code=500, detail="GOOGLE_TRANSLATE_API_KEY not configured")
@@ -44,6 +55,6 @@ async def translate_text(
 
         translations = [item["translatedText"] for item in data["data"]["translations"]]
         return {"translations": translations}
-    except Exception as e:
+    except Exception:
         logger.exception("Translation request failed")
         raise HTTPException(status_code=500, detail="Translation service unavailable")

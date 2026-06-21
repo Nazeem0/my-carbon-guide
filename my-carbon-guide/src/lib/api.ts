@@ -11,10 +11,25 @@ async function authHeaders(user: User): Promise<HeadersInit> {
   };
 }
 
+export class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {
-    const detail = await res.text();
-    throw new Error(detail || res.statusText);
+    let detail: string;
+    try {
+      const body = await res.json();
+      detail = body.detail ?? res.statusText;
+    } catch {
+      detail = await res.text().catch(() => res.statusText);
+    }
+    throw new ApiError(detail || res.statusText, res.status);
   }
   return res.json() as Promise<T>;
 }

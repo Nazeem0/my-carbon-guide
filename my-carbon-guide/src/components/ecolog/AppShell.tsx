@@ -36,7 +36,7 @@ export function AppShell({
             />
           </div>
           {!hideNavbar && <Navbar hideStreak={hideStreak} />}
-          <div className="relative flex flex-col overflow-y-auto scrollbar-none flex-1 min-h-0 overscroll-none pb-[75px]">
+          <div className="relative flex flex-col overflow-y-auto scrollbar-none flex-1 min-h-0 overscroll-none pb-[105px]">
             <main className="relative flex-1 px-5 pt-2">{children}</main>
           </div>
           <Dock />

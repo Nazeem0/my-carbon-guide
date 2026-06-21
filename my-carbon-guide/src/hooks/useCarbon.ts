@@ -136,7 +136,7 @@ export function useCarbon() {
     if (weeklyDataArray.length === 0) {
       return { avg: 0, best_day: 0, worst_day: 0, trend: "stable" };
     }
-    const sum = weeklyDataArray.reduce((a, b) => a + b, 0);
+    const sum = weeklyDataArray.reduce((acc, val) => acc + val, 0);
     const avg = parseFloat((sum / weeklyDataArray.length).toFixed(2));
     const best_day = Math.min(...weeklyDataArray);
     const worst_day = Math.max(...weeklyDataArray);

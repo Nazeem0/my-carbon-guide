@@ -10,15 +10,17 @@ this module is REST-only.
 """
 
 import asyncio
-from datetime import timedelta, date
-from typing import Annotated
+from datetime import timedelta, date, datetime, timezone
+from typing import Annotated, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
+from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 
 from firebase_init import db
 from auth import verify_token
 from carbon import calculate_co2, EMISSION_FACTORS
+from google.cloud.firestore_v1.base_query import FieldFilter
 from ws_manager import manager
 from utils import serialize_activity
 
@@ -89,7 +91,7 @@ async def _recalculate_and_broadcast(uid: str):
 
 def _recalculate_sync(uid: str) -> dict:
     today = _today_str()
-    acts_ref = db.collection("activities").where("userId", "==", uid).stream()
+    acts_ref = db.collection("activities").where(filter=FieldFilter("userId", "==", uid)).stream()
     today_total = 0.0
     all_dates: set[str] = set()
     all_activities = []
@@ -113,12 +115,12 @@ def _recalculate_sync(uid: str) -> dict:
 
     users_snap = db.collection("users").stream()
     all_users = []
-    for u in users_snap:
-        d = u.to_dict()
-        all_users.append({"uid": u.id, "todayKg": d.get("todayKg", 0.0)})
-    all_users = [u if u["uid"] != uid else {**u, "todayKg": today_total} for u in all_users]
-    all_users.sort(key=lambda u: u["todayKg"])
-    rank = next((i + 1 for i, u in enumerate(all_users) if u["uid"] == uid), 999)
+    for user_snap in users_snap:
+        user_data = user_snap.to_dict()
+        all_users.append({"uid": user_snap.id, "todayKg": user_data.get("todayKg", 0.0)})
+    all_users = [entry if entry["uid"] != uid else {**entry, "todayKg": today_total} for entry in all_users]
+    all_users.sort(key=lambda entry: entry["todayKg"])
+    rank = next((i + 1 for i, entry in enumerate(all_users) if entry["uid"] == uid), 999)
 
     streak = _calculate_streak(all_dates)
 
@@ -128,7 +130,7 @@ def _recalculate_sync(uid: str) -> dict:
     )
 
     user_doc = db.collection("users").document(uid).get().to_dict() or {}
-    all_activities.sort(key=lambda a: a["timestamp"], reverse=True)
+    all_activities.sort(key=lambda act: act["timestamp"], reverse=True)
 
     return {
         "type": "SYNC",
@@ -137,8 +139,12 @@ def _recalculate_sync(uid: str) -> dict:
     }
 
 
-def _fetch_activities(uid: str) -> list:
-    snap = db.collection("activities").where("userId", "==", uid).stream()
+def _fetch_activities(uid: str, days: int | None = None) -> list:
+    query = db.collection("activities").where(filter=FieldFilter("userId", "==", uid))
+    if days is not None:
+        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+        query = query.where(filter=FieldFilter("timestamp", ">=", cutoff))
+    snap = query.stream()
     result = []
     for doc in snap:
         data = doc.to_dict()
@@ -150,12 +156,11 @@ def _fetch_activities(uid: str) -> list:
             "co2_kg": data.get("co2_kg", 0.0),
             "timestamp": ts.isoformat() if ts and hasattr(ts, "isoformat") else str(ts),
         })
-    result.sort(key=lambda a: a["timestamp"], reverse=True)
+    result.sort(key=lambda act: act["timestamp"], reverse=True)
     return result
 
 
 def _save_activity(uid: str, activity_key: str, quantity: float, co2_kg: float) -> None:
-    from google.cloud.firestore_v1 import SERVER_TIMESTAMP
     db.collection("activities").add({
         "userId": uid,
         "activityKey": activity_key,
@@ -168,8 +173,11 @@ def _save_activity(uid: str, activity_key: str, quantity: float, co2_kg: float) 
 # ─── REST: GET /api/activities ────────────────────────────────────────────────
 
 @router.get("/activities")
-async def get_activities(token: Annotated[dict, Depends(verify_token)]):
-    return await asyncio.to_thread(_fetch_activities, token["uid"])
+async def get_activities(
+    token: Annotated[dict, Depends(verify_token)],
+    days: Annotated[Optional[int], Query(ge=1, le=365)] = None,
+):
+    return await asyncio.to_thread(_fetch_activities, token["uid"], days)
 
 
 # ─── REST: POST /api/activities ───────────────────────────────────────────────
@@ -184,14 +192,14 @@ async def add_activity(
     if body.activityKey not in EMISSION_FACTORS:
         raise HTTPException(status_code=400, detail=f"Unknown activityKey: {body.activityKey}")
 
-    calc = calculate_co2(body.activityKey, body.quantity)
+    result = calculate_co2(body.activityKey, body.quantity)
 
     await asyncio.to_thread(
-        _save_activity, uid, body.activityKey, body.quantity, calc["co2_kg"]
+        _save_activity, uid, body.activityKey, body.quantity, result["co2_kg"]
     )
 
     # Recalculate everything and push via WebSocket in the background
     asyncio.create_task(_recalculate_and_broadcast(uid))
 
-    return {"co2_kg": calc["co2_kg"], "label": calc["label"]}
+    return {"co2_kg": result["co2_kg"], "label": result["label"]}
 

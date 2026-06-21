@@ -197,12 +197,14 @@ const [mounted, setMounted] = useState(false);
     }
   }, [profile?.streak, language, user]);
 
+  const { error: profileError } = useUserProfile();
+
   const handleQuickLogClick = (cat: "transport" | "food" | "energy" | "shopping") => {
     setSelectedCategory(cat);
     setSheetOpen(true);
   };
 
-  if (profileLoading || !profile) {
+  if (profileLoading) {
     return (
       <AppShell hideStreak>
         <ToastHost />
@@ -230,6 +232,43 @@ const [mounted, setMounted] = useState(false);
               <Skeleton key={i} className="h-24" />
             ))}
           </div>
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (profileError) {
+    return (
+      <AppShell hideStreak>
+        <div className="flex flex-col items-center justify-center p-8 text-center text-destructive">
+          <p className="font-semibold">{t("detailedInsight.errorTitle")}</p>
+          <p className="text-xs mt-1">{profileError}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 rounded-xl bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground hover:opacity-90"
+          >
+            Retry
+          </button>
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <AppShell hideStreak>
+        <div className="flex flex-col items-center justify-center p-8 text-center">
+          <div className="text-4xl mb-3">👋</div>
+          <p className="font-bold text-white text-lg">Welcome to EcoLog!</p>
+          <p className="text-xs text-white/60 mt-1 max-w-xs">
+            We couldn't load your profile. Please refresh the page or contact support if the issue persists.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          >
+            Refresh Profile
+          </button>
         </div>
       </AppShell>
     );

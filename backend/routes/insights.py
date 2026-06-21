@@ -246,16 +246,16 @@ Rules:
         _save_insight_cache(req.userId, "daily", text)
         return {"text": text, "cached": False}
     except genai_errors.ClientError as e:
-        if e.code == 429:
+        if getattr(e, "code", None) == 429 or getattr(e, "status_code", None) == 429:
             raise HTTPException(
                 status_code=429,
                 detail="AI insight temporarily unavailable — daily limit reached, try again later",
             )
         logger.exception("Gemini client error generating daily insight")
-        raise HTTPException(status_code=500, detail="Failed to generate insight")
+        raise HTTPException(status_code=500, detail="Failed to generate daily insight")
     except Exception:
         logger.exception("Error generating daily insight")
-        raise HTTPException(status_code=500, detail="Failed to generate insight")
+        raise HTTPException(status_code=500, detail="Failed to generate daily insight")
     finally:
         if acquired:
             _release_lock(req.userId, "daily")
@@ -381,7 +381,7 @@ Output only the 3 sentences.
         _save_insight_cache(req.userId, "weekly", text)
         return {"text": text, "cached": False}
     except genai_errors.ClientError as e:
-        if e.code == 429:
+        if getattr(e, "code", None) == 429 or getattr(e, "status_code", None) == 429:
             raise HTTPException(
                 status_code=429,
                 detail="AI insight temporarily unavailable — daily limit reached, try again later",
@@ -513,16 +513,16 @@ Return the response ONLY as a raw, valid JSON object with the following exact ke
         return insight_data
 
     except genai_errors.ClientError as e:
-        if e.code == 429:
+        if getattr(e, "code", None) == 429 or getattr(e, "status_code", None) == 429:
             raise HTTPException(
                 status_code=429,
                 detail="AI insight temporarily unavailable — daily limit reached, try again later",
             )
         logger.exception("Gemini client error generating detailed insight")
-        raise HTTPException(status_code=500, detail="Failed to generate insight")
+        raise HTTPException(status_code=500, detail="Failed to generate detailed insight")
     except Exception:
         logger.exception("Error generating detailed insight")
-        raise HTTPException(status_code=500, detail="Failed to generate insight")
+        raise HTTPException(status_code=500, detail="Failed to generate detailed insight")
     finally:
         if acquired:
             _release_lock(req.userId, "detailed")
@@ -583,7 +583,7 @@ async def chat_with_insight(
         
         return {"reply": response.text.strip()}
     except genai_errors.ClientError as e:
-        if e.code == 429:
+        if getattr(e, "code", None) == 429 or getattr(e, "status_code", None) == 429:
             raise HTTPException(
                 status_code=429,
                 detail="AI insight temporarily unavailable — daily limit reached, try again later",

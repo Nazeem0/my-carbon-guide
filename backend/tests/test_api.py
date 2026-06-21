@@ -815,6 +815,26 @@ class TestInsightsAPI:
         assert resp2.status_code == 200
         assert resp2.json().get("cached") is False
 
+    def test_insights_quota_exhaustion_returns_429(self):
+        """Mocks Gemini API throwing ClientError(429) and checks that API translates to 429."""
+        from unittest.mock import patch
+        from google.genai.errors import ClientError
+
+        # Create a mock client that throws a ClientError with code=429
+        mock_client = MagicMock()
+        mock_err = ClientError(code=429, response_json={"error": "quota exhausted"})
+        # Ensure 'code' and 'status_code' return 429 (simulating the new SDK exception structure)
+        mock_client.models.generate_content.side_effect = mock_err
+
+        with patch("routes.insights._get_gemini_client", return_value=mock_client), \
+             patch("routes.insights._get_cached_insight", return_value=None), \
+             patch("routes.insights._acquire_lock", return_value=True), \
+             patch("routes.insights._release_lock"):
+            
+            resp = client.post("/api/insights/detailed", json={**_DETAILED_BODY, "force_refresh": True}, headers=_auth())
+            assert resp.status_code == 429
+            assert "limit reached" in resp.json()["detail"]
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # 6. Translate API

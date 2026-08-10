@@ -14,6 +14,7 @@ Track • Analyze • Reduce • Sustain
 ![Python](https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge)
 ![Flask](https://img.shields.io/badge/Flask-Framework-black?style=for-the-badge)
 ![Sustainability](https://img.shields.io/badge/Sustainability-Green-success?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Working%20App-brightgreen?style=for-the-badge)
 
 ### 🌱 Making Sustainability Simple Through Technology
 
@@ -23,11 +24,11 @@ Track • Analyze • Reduce • Sustain
 
 ## 🚀 About The Project
 
-**My Carbon Guide** is an AI-powered sustainability platform that helps users understand, track, and reduce their carbon footprint through intelligent insights and personalized recommendations.
+**My Carbon Guide** is a working, AI-powered sustainability app that helps users understand, track, and reduce their carbon footprint through intelligent insights and personalized recommendations.
 
 The platform transforms everyday activities into measurable environmental impact metrics, enabling individuals to make informed decisions and contribute toward a greener future.
 
-Whether it's transportation, energy usage, or lifestyle habits, My Carbon Guide provides actionable guidance to help users reduce emissions and adopt sustainable practices.
+Whether it's transportation, energy usage, or lifestyle habits, My Carbon Guide provides actionable guidance to help users reduce emissions and adopt sustainable practices — run it locally and try it out yourself.
 
 ---
 
@@ -76,9 +77,9 @@ Dashboard & Sustainability Insights
 ## 🛠️ Tech Stack
 
 ### Frontend
-- HTML5
-- CSS3
+- TypeScript
 - JavaScript
+- CSS
 
 ### Backend
 - Python
@@ -91,6 +92,18 @@ Dashboard & Sustainability Insights
 - Machine Learning
 - Data Processing
 - Carbon Estimation Models
+
+---
+
+## 📊 Languages Used
+
+| Language | Usage |
+|---|---|
+| TypeScript | 72.4% |
+| Python | 20.2% |
+| JavaScript | 4.1% |
+| CSS | 2.9% |
+| Other | 0.4% |
 
 ---
 
@@ -115,58 +128,41 @@ my-carbon-guide/
 
 ---
 
-## ⚡ Installation
+## ⚡ Getting Started
 
-### Clone the Repository
+This app runs locally — follow these steps to get it up and running on your own machine.
+
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/Nazeem0/my-carbon-guide.git
 ```
 
-### Navigate to Project Directory
+### 2. Navigate to Project Directory
 
 ```bash
 cd my-carbon-guide
 ```
 
-### Install Dependencies
+### 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Run the Application
+### 4. Run the Application
 
 ```bash
 python app.py
 ```
 
-### Open in Browser
+### 5. Open in Browser
 
 ```text
 http://localhost:5000
 ```
 
----
-
-## 📸 Screenshots
-
-> Add your project screenshots here
-
-### Dashboard
-```text
-assets/dashboard.png
-```
-
-### Carbon Insights
-```text
-assets/insights.png
-```
-
-### Recommendations
-```text
-assets/recommendations.png
-```
+You should now see the My Carbon Guide dashboard live in your browser.
 
 ---
 
